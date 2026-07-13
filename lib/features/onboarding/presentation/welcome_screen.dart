@@ -137,7 +137,33 @@ class WelcomeScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Already have an account? ',
+                        style: GoogleFonts.inter(
+                          color: AppTheme.softCream.withOpacity(0.8),
+                          fontSize: 14,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () => context.push('/login'),
+                        child: Text(
+                          'Log In',
+                          style: GoogleFonts.inter(
+                            color: AppTheme.accentGold,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            decoration: TextDecoration.underline,
+                            decorationColor: AppTheme.accentGold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
                   Text(
                     'A secure, Wali-supported marriage matching platform.',
                     style: GoogleFonts.inter(

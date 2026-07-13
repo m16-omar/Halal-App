@@ -30,28 +30,38 @@ class _ProposeMeetingScreenState extends ConsumerState<ProposeMeetingScreen> {
           children: [
             _buildHeader(),
             Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildParticipantsProgressCard(),
-                      const SizedBox(height: 20),
-                      _buildMeetingPurposeSection(),
-                      const SizedBox(height: 20),
-                      _buildMeetingTypeSection(),
-                      const SizedBox(height: 20),
-                      _buildDateTimePickerSection(),
-                      const SizedBox(height: 20),
-                      _buildLocationSection(),
-                      const SizedBox(height: 20),
-                      _buildNotesSection(),
-                      const SizedBox(height: 20),
-                      _buildNextStepsAndReminderSection(),
-                      const SizedBox(height: 20),
-                      _buildSendRequestButton(),
-                    ],
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  await Future.delayed(const Duration(seconds: 1));
+                  if (mounted) {
+                    setState(() {});
+                  }
+                },
+                color: AppTheme.primaryGreen,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildParticipantsProgressCard(),
+                        const SizedBox(height: 20),
+                        _buildMeetingPurposeSection(),
+                        const SizedBox(height: 20),
+                        _buildMeetingTypeSection(),
+                        const SizedBox(height: 20),
+                        _buildDateTimePickerSection(),
+                        const SizedBox(height: 20),
+                        _buildLocationSection(),
+                        const SizedBox(height: 20),
+                        _buildNotesSection(),
+                        const SizedBox(height: 20),
+                        _buildNextStepsAndReminderSection(),
+                        const SizedBox(height: 20),
+                        _buildSendRequestButton(),
+                      ],
+                    ),
                   ),
                 ),
               ),

@@ -30,24 +30,34 @@ class _WaliChatScreenState extends ConsumerState<WaliChatScreen> {
           children: [
             _buildHeader(),
             Expanded(
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      _buildSupervisionCard(),
-                      const SizedBox(height: 12),
-                      _buildQuoteAndProgressRow(),
-                      const SizedBox(height: 20),
-                      _buildChatFeedSection(),
-                      const SizedBox(height: 16),
-                      _buildStartConversationPrompts(),
-                      const SizedBox(height: 16),
-                      _buildInputComposer(),
-                      const SizedBox(height: 20),
-                      _buildActionsFooterSection(),
-                    ],
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  await Future.delayed(const Duration(seconds: 1));
+                  if (mounted) {
+                    setState(() {});
+                  }
+                },
+                color: AppTheme.primaryGreen,
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        _buildSupervisionCard(),
+                        const SizedBox(height: 12),
+                        _buildQuoteAndProgressRow(),
+                        const SizedBox(height: 20),
+                        _buildChatFeedSection(),
+                        const SizedBox(height: 16),
+                        _buildStartConversationPrompts(),
+                        const SizedBox(height: 16),
+                        _buildInputComposer(),
+                        const SizedBox(height: 20),
+                        _buildActionsFooterSection(),
+                      ],
+                    ),
                   ),
                 ),
               ),

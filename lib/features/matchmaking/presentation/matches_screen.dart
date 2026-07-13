@@ -109,12 +109,22 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAF6),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildHeaderSection(),
-            _buildMainFeedContent(),
-          ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await Future.delayed(const Duration(seconds: 1));
+          if (mounted) {
+            setState(() {});
+          }
+        },
+        color: AppTheme.primaryGreen,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            children: [
+              _buildHeaderSection(),
+              _buildMainFeedContent(),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: _buildCustomBottomNav(),

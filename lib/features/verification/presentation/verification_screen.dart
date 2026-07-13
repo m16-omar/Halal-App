@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../app/theme/app_theme.dart';
+import '../../authentication/presentation/auth_provider.dart';
 
 class VerificationScreen extends ConsumerStatefulWidget {
   const VerificationScreen({super.key});
@@ -38,8 +39,40 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> {
     );
   }
 
-  void _onSubmit() {
-    context.go('/home');
+  Future<void> _onSubmit() async {
+    final currentUser = ref.read(authProvider).user;
+    if (currentUser != null && currentUser.id > 0) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(
+            color: AppTheme.primaryGreen,
+          ),
+        ),
+      );
+
+      final success = await ref.read(authProvider.notifier).submitVerification(
+        seekerId: currentUser.id,
+      );
+
+      if (mounted) {
+        Navigator.of(context).pop();
+        if (success) {
+          context.go('/home');
+        } else {
+          final error = ref.read(authProvider).errorMessage ?? 'Verification submission failed';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error, style: GoogleFonts.inter()),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } else {
+      context.go('/home');
+    }
   }
 
   @override

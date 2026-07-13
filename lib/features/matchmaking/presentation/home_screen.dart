@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_theme.dart';
+import '../../authentication/presentation/auth_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -29,14 +30,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+    final user = authState.user;
+    final userName = user?.fullName.split(' ').first ?? 'Seeker';
+
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAF6),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildHeaderSection(),
-            _buildMainDashboardContent(),
-          ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await Future.delayed(const Duration(seconds: 1));
+          if (mounted) {
+            setState(() {});
+          }
+        },
+        color: AppTheme.primaryGreen,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            children: [
+              _buildHeaderSection(user, userName),
+              _buildMainDashboardContent(),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: _buildCustomBottomNav(),
@@ -44,7 +59,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   // --- HEADER SECTION (Dark Forest Green Gradient) ---
-  Widget _buildHeaderSection() {
+  Widget _buildHeaderSection(SeekerUser? user, String userName) {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -82,7 +97,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                       ),
                       Text(
-                        'Abdullahi',
+                        userName,
                         style: GoogleFonts.outfit(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -90,25 +105,52 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      // Verified Badge
+                      // Verified/Pending/Unverified Badge
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF10B981).withOpacity(0.15),
+                          color: ((user?.status == 'Verified'
+                              ? const Color(0xFF10B981)
+                              : user?.status == 'Pending'
+                                  ? const Color(0xFFD4AF37)
+                                  : const Color(0xFF9E9E9E))).withOpacity(0.15),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFF10B981), width: 1),
+                          border: Border.all(
+                            color: user?.status == 'Verified'
+                                ? const Color(0xFF10B981)
+                                : user?.status == 'Pending'
+                                    ? const Color(0xFFD4AF37)
+                                    : const Color(0xFF9E9E9E),
+                            width: 1,
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.check, color: Color(0xFF10B981), size: 10),
+                            Icon(
+                              user?.status == 'Verified'
+                                  ? Icons.check
+                                  : user?.status == 'Pending'
+                                      ? Icons.hourglass_empty
+                                      : Icons.warning_amber_rounded,
+                              color: user?.status == 'Verified'
+                                  ? const Color(0xFF10B981)
+                                  : user?.status == 'Pending'
+                                      ? const Color(0xFFD4AF37)
+                                      : const Color(0xFF9E9E9E),
+                              size: 10,
+                            ),
                             const SizedBox(width: 4),
                             Text(
-                              'Verified',
+                              user?.status ?? 'Unverified',
                               style: GoogleFonts.inter(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xFF10B981),
+                                color: user?.status == 'Verified'
+                                    ? const Color(0xFF10B981)
+                                    : user?.status == 'Pending'
+                                        ? const Color(0xFFD4AF37)
+                                        : const Color(0xFF9E9E9E),
                               ),
                             ),
                           ],

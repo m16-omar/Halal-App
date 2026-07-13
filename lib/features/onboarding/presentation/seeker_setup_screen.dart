@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../app/theme/app_theme.dart';
+import '../../authentication/presentation/auth_provider.dart';
 
 class SeekerSetupScreen extends ConsumerStatefulWidget {
   const SeekerSetupScreen({super.key});
@@ -24,6 +25,10 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
   final List<String> _selectedLanguages = [];
   
   final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _isPasswordVisible = false;
+  
   final _occupationController = TextEditingController();
   final _expectationsController = TextEditingController();
   
@@ -38,6 +43,8 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
   @override
   void dispose() {
     _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     _occupationController.dispose();
     _expectationsController.dispose();
     _waliNameController.dispose();
@@ -46,13 +53,70 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
     super.dispose();
   }
 
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: GoogleFonts.inter()),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
   void _nextStep() {
+    if (_currentStep == 0) {
+      if (_nameController.text.trim().isEmpty) {
+        _showErrorSnackBar('Please enter your first name.');
+        return;
+      }
+      if (_emailController.text.trim().isEmpty || !_emailController.text.contains('@')) {
+        _showErrorSnackBar('Please enter a valid email address.');
+        return;
+      }
+      if (_passwordController.text.length < 6) {
+        _showErrorSnackBar('Password must be at least 6 characters.');
+        return;
+      }
+    }
+
     if (_currentStep < _totalSteps - 1) {
       setState(() {
         _currentStep++;
       });
     } else {
-      context.push('/verification');
+      _registerSeeker();
+    }
+  }
+
+  Future<void> _registerSeeker() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(
+          color: AppTheme.primaryGreen,
+        ),
+      ),
+    );
+
+    final success = await ref.read(authProvider.notifier).register(
+      fullName: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+      gender: _gender ?? 'groom',
+      stateVal: _state,
+      waliName: _waliNameController.text.trim(),
+      waliRelationship: _waliRelationshipController.text.trim(),
+      waliContact: _waliContactController.text.trim(),
+    );
+
+    if (mounted) {
+      Navigator.of(context).pop();
+      if (success) {
+        context.push('/verification');
+      } else {
+        final error = ref.read(authProvider).errorMessage ?? 'Registration failed';
+        _showErrorSnackBar(error);
+      }
     }
   }
 
@@ -154,6 +218,38 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
             labelText: 'First Name (or Initials)',
             hintText: 'Enter your first name only',
             prefixIcon: Icon(Icons.person_outline),
+          ),
+        ),
+        const SizedBox(height: 20),
+        TextFormField(
+          controller: _emailController,
+          keyboardType: TextInputType.emailAddress,
+          decoration: const InputDecoration(
+            labelText: 'Email Address',
+            hintText: 'Enter your email',
+            prefixIcon: Icon(Icons.email_outlined),
+          ),
+        ),
+        const SizedBox(height: 20),
+        TextFormField(
+          controller: _passwordController,
+          obscureText: !_isPasswordVisible,
+          decoration: InputDecoration(
+            labelText: 'Password',
+            hintText: 'Create a password (min. 6 characters)',
+            prefixIcon: const Icon(Icons.lock_outlined),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _isPasswordVisible
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
+              ),
+              onPressed: () {
+                setState(() {
+                  _isPasswordVisible = !_isPasswordVisible;
+                });
+              },
+            ),
           ),
         ),
         const SizedBox(height: 20),

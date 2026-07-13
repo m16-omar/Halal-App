@@ -9,6 +9,7 @@ import '../../features/matchmaking/presentation/matches_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/group_chat/presentation/wali_chat_screen.dart';
 import '../../features/meetings/presentation/propose_meeting_screen.dart';
+import '../../features/authentication/presentation/login_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
@@ -20,6 +21,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/welcome',
       builder: (context, state) => const WelcomeScreen(),
+    ),
+    GoRoute(
+      path: '/login',
+      builder: (context, state) => const LoginScreen(),
     ),
     GoRoute(
       path: '/role-selection',
