@@ -362,6 +362,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         'icon': Icons.person_search_outlined,
         'bg': const Color(0xFFE8F5E9),
         'color': const Color(0xFF2E7D32),
+        'route': '/matches',
       },
       {
         'title': 'Interest Requests',
@@ -369,6 +370,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         'icon': Icons.favorite_outline,
         'bg': const Color(0xFFFFEBEE),
         'color': const Color(0xFFC62828),
+        'route': '/interest-requests',
       },
       {
         'title': 'My Wali',
@@ -376,6 +378,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         'icon': Icons.people_outline,
         'bg': const Color(0xFFF3E5F5),
         'color': const Color(0xFF6A1B9A),
+        'route': '/wali-chat',
       },
       {
         'title': 'Imam Connect',
@@ -383,6 +386,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         'icon': Icons.mosque_outlined,
         'bg': const Color(0xFFE3F2FD),
         'color': const Color(0xFF1565C0),
+        'route': '/counseling',
       },
       {
         'title': 'Meetings',
@@ -390,6 +394,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         'icon': Icons.calendar_month_outlined,
         'bg': const Color(0xFFFFF3E0),
         'color': const Color(0xFFEF6C00),
+        'route': '/propose-meeting',
       },
       {
         'title': 'Resources',
@@ -397,6 +402,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         'icon': Icons.menu_book_outlined,
         'bg': const Color(0xFFE0F2F1),
         'color': const Color(0xFF00695C),
+        'route': '/counseling',
       },
     ];
 
@@ -417,35 +423,45 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: menuItems.map((item) {
-            return Container(
-              width: 100,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
-              child: Column(
-                children: [
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: item['bg'],
-                      shape: BoxShape.circle,
+            return GestureDetector(
+              onTap: () {
+                final route = item['route'] as String;
+                if (route == '/matches' || route == '/wali-chat' || route == '/counseling') {
+                  context.go(route);
+                } else {
+                  context.push(route);
+                }
+              },
+              child: Container(
+                width: 100,
+                margin: const EdgeInsets.symmetric(horizontal: 8),
+                child: Column(
+                  children: [
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: item['bg'],
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(item['icon'], color: item['color'], size: 24),
                     ),
-                    child: Icon(item['icon'], color: item['color'], size: 24),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    item['title'],
-                    style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 11, color: AppTheme.darkCharcoal),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    item['subtitle'],
-                    style: GoogleFonts.inter(fontSize: 8, color: AppTheme.secondaryGrey),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      item['title'],
+                      style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 11, color: AppTheme.darkCharcoal),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      item['subtitle'],
+                      style: GoogleFonts.inter(fontSize: 8, color: AppTheme.secondaryGrey),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
             );
           }).toList(),

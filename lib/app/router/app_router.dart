@@ -17,6 +17,7 @@ import '../../features/group_chat/presentation/direct_chat_screen.dart';
 import '../../features/group_chat/presentation/messages_screen.dart';
 import '../../features/matchmaking/presentation/search_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
+import '../../features/interest_requests/presentation/interest_requests_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
@@ -101,6 +102,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/notifications',
       builder: (context, state) => const NotificationsScreen(),
+    ),
+    GoRoute(
+      path: '/interest-requests',
+      builder: (context, state) => const InterestRequestsScreen(),
     ),
   ],
 );
