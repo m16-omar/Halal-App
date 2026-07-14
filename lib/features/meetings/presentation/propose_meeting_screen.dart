@@ -12,7 +12,7 @@ class ProposeMeetingScreen extends ConsumerStatefulWidget {
 }
 
 class _ProposeMeetingScreenState extends ConsumerState<ProposeMeetingScreen> {
-  int _currentIndex = 4; // Wali Chat active tab
+  int _currentIndex = 2; // Wali Chat active tab
   int _selectedPurpose = 0;
   int _selectedType = 0; // 0: Virtual, 1: In-Person
   final TextEditingController _notesController = TextEditingController();
@@ -781,11 +781,27 @@ class _ProposeMeetingScreenState extends ConsumerState<ProposeMeetingScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          _buildNavItem(Icons.home_outlined, 'Home', 0),
-          _buildNavItem(Icons.favorite_border, 'Matches', 1),
+          _buildNavItem(
+            _currentIndex == 0 ? Icons.home : Icons.home_outlined,
+            'Home',
+            0,
+          ),
+          _buildNavItem(
+            _currentIndex == 1 ? Icons.favorite : Icons.favorite_border,
+            'Matches',
+            1,
+          ),
           _buildWaliChatButton(),
-          _buildNavItem(Icons.supervisor_account_outlined, 'Counseling', 2),
-          _buildNavItem(Icons.person_outline, 'Profile', 3),
+          _buildNavItem(
+            _currentIndex == 3 ? Icons.supervisor_account : Icons.supervisor_account_outlined,
+            'Counseling',
+            3,
+          ),
+          _buildNavItem(
+            _currentIndex == 4 ? Icons.person : Icons.person_outline,
+            'Profile',
+            4,
+          ),
         ],
       ),
     );
@@ -795,16 +811,16 @@ class _ProposeMeetingScreenState extends ConsumerState<ProposeMeetingScreen> {
     bool isSelected = _currentIndex == index;
     return GestureDetector(
       onTap: () {
+        if (isSelected) return;
+        
         if (index == 0) {
           context.go('/home');
         } else if (index == 1) {
           context.push('/matches');
         } else if (index == 3) {
+          context.push('/counseling');
+        } else if (index == 4) {
           context.push('/profile');
-        } else {
-          setState(() {
-            _currentIndex = index;
-          });
         }
       },
       child: Column(
@@ -830,9 +846,12 @@ class _ProposeMeetingScreenState extends ConsumerState<ProposeMeetingScreen> {
   }
 
   Widget _buildWaliChatButton() {
+    bool isSelected = _currentIndex == 2;
     return GestureDetector(
       onTap: () {
-        context.push('/wali-chat');
+        if (!isSelected) {
+          context.push('/wali-chat');
+        }
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -843,20 +862,22 @@ class _ProposeMeetingScreenState extends ConsumerState<ProposeMeetingScreen> {
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: const Color(0xFF0F3E22),
+                color: isSelected ? const Color(0xFF0F3E22) : const Color(0xFFD4AF37),
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFD4AF37), width: 2),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFD4AF37).withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                border: isSelected ? Border.all(color: const Color(0xFFD4AF37), width: 2) : null,
+                boxShadow: !isSelected
+                    ? [
+                        BoxShadow(
+                          color: const Color(0xFFD4AF37).withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : null,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.people_alt,
-                color: Color(0xFFD4AF37),
+                color: isSelected ? const Color(0xFFD4AF37) : const Color(0xFF04140C),
                 size: 24,
               ),
             ),

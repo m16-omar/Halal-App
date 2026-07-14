@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_theme.dart';
+import '../../../shared/components/custom_bottom_nav.dart';
 
 class MatchesScreen extends ConsumerStatefulWidget {
   const MatchesScreen({super.key});
@@ -12,1003 +13,999 @@ class MatchesScreen extends ConsumerStatefulWidget {
 }
 
 class _MatchesScreenState extends ConsumerState<MatchesScreen> {
-  int _currentIndex = 1; // Matches tab selected
-  int _selectedStatusFilter = 0;
-  String _selectedAge = '18 - 30';
+  int _selectedStatusFilter = 0; // 0: All Matches, 1: New Members, 2: Recently Active, 3: Near You, 4: Compatible
+  String _selectedAge = '20 - 30';
   String _selectedLocation = 'All';
   String _selectedEducation = 'All';
-  String _selectedMadhab = 'All';
-  int _currentPage = 1;
 
-  // Mock candidates photos
-  final String _aishaPhoto = 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80';
-  final String _yusufPhoto = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&auto=format&fit=crop&q=80';
-  final String _maryamPhoto = 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=300&auto=format&fit=crop&q=80';
-  final String _abdullahiPhoto = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80';
-
-  final List<Map<String, dynamic>> _mockCandidates = [
-    {
-      'name': 'Aisha Usman',
-      'age': '22',
-      'hijri': '15 Safar 1446 AH',
-      'state': 'Ilorin, Kwara State',
-      'job': 'Undergraduate – Biology',
-      'madhab': 'Sunni',
-      'practice': 'Practicing',
-      'compatibility': '92%',
-      'compatibilityVal': 0.92,
-      'statusBadge': 'New',
-      'statusBg': const Color(0xFF10B981),
-      'height': '164 cm',
-      'marital': 'Never Married',
-      'specialTag': 'Niqabi',
-      'specialTagBg': const Color(0xFFF3E5F5),
-      'specialTagColor': const Color(0xFF6A1B9A),
-      'img': 'aisha',
-    },
-    {
-      'name': 'Yusuf Ahmad',
-      'age': '28',
-      'hijri': '10 Rabi\'ul Awwal 1446 AH',
-      'state': 'Bida, Niger State',
-      'job': 'Civil Engineer',
-      'madhab': 'Sunni',
-      'practice': 'Practicing',
-      'compatibility': '89%',
-      'compatibilityVal': 0.89,
-      'statusBadge': 'New',
-      'statusBg': const Color(0xFF10B981),
-      'height': '175 cm',
-      'marital': 'Never Married',
-      'specialTag': 'Family Oriented',
-      'specialTagBg': const Color(0xFFFFF3E0),
-      'specialTagColor': const Color(0xFFE65100),
-      'img': 'yusuf',
-    },
-    {
-      'name': 'Maryam Ibrahim',
-      'age': '23',
-      'hijri': '2 Rabi\'ul Thani 1446 AH',
-      'state': 'Minna, Niger State',
-      'job': 'Undergraduate – Education',
-      'madhab': 'Sunni',
-      'practice': 'Practicing',
-      'compatibility': '87%',
-      'compatibilityVal': 0.87,
-      'statusBadge': 'Recently Active',
-      'statusBg': const Color(0xFF0D47A1),
-      'height': '158 cm',
-      'marital': 'Never Married',
-      'specialTag': 'Loves Reading',
-      'specialTagBg': const Color(0xFFE8EAF6),
-      'specialTagColor': const Color(0xFF1A237E),
-      'img': 'maryam',
-    },
-    {
-      'name': 'Abdullahi Musa',
-      'age': '25',
-      'hijri': '20 Safar 1446 AH',
-      'state': 'Abuja, FCT',
-      'job': 'Graduate – Computer Science',
-      'madhab': 'Sunni',
-      'practice': 'Practicing',
-      'compatibility': '85%',
-      'compatibilityVal': 0.85,
-      'statusBadge': 'Online',
-      'statusBg': const Color(0xFF2E7D32),
-      'height': '178 cm',
-      'marital': 'Never Married',
-      'specialTag': 'Fitness Lover',
-      'specialTagBg': const Color(0xFFE0F2F1),
-      'specialTagColor': const Color(0xFF004D40),
-      'img': 'abdullahi',
-    },
-  ];
+  // Mock portraits
+  final String _aishaPhoto = 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&auto=format&fit=crop&q=80';
+  final String _yusufPhoto = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&auto=format&fit=crop&q=80';
+  final String _fatimaPhoto = 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?w=500&auto=format&fit=crop&q=80';
+  final String _ibrahimPhoto = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80';
+  final String _maryamPhoto = 'https://images.unsplash.com/photo-1589156280159-27698a70f29e?w=500&auto=format&fit=crop&q=80';
+  final String _hassanPhoto = 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&auto=format&fit=crop&q=80';
+  final String _zainabPhoto = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAF6),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await Future.delayed(const Duration(seconds: 1));
-          if (mounted) {
-            setState(() {});
-          }
-        },
-        color: AppTheme.primaryGreen,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            children: [
-              _buildHeaderSection(),
-              _buildMainFeedContent(),
-            ],
+      body: Column(
+        children: [
+          Expanded(
+            child: SafeArea(
+              bottom: false,
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  await Future.delayed(const Duration(seconds: 1));
+                  if (mounted) {
+                    setState(() {});
+                  }
+                },
+                color: AppTheme.primaryGreen,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildHeaderSection(),
+                      _buildPremiumBanner(),
+                      _buildSubNavigationTabBar(),
+                      _buildFilterBar(),
+                      _buildDailyPicksSection(),
+                      _buildIncreaseChancesCard(),
+                      _buildRecommendedSection(),
+                      _buildTrustInAllahCard(),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
-        ),
+          const CustomBottomNav(currentIndex: 1),
+        ],
       ),
-      bottomNavigationBar: _buildCustomBottomNav(),
     );
   }
 
-  // --- HEADER SECTION (Matches Header & Filter Pills) ---
+  // 1. HEADER SECTION
   Widget _buildHeaderSection() {
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF04140C),
-            Color(0xFF082214),
+      color: Colors.white,
+      padding: const EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Matches',
+                style: GoogleFonts.outfit(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.darkCharcoal,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Text(
+                    'Find your hopeful partner',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: AppTheme.secondaryGrey,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.favorite, size: 14, color: AppTheme.primaryGreen),
+                ],
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.grey[200]!),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.search, color: AppTheme.darkCharcoal, size: 22),
+                  onPressed: () {},
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.grey[200]!),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.tune, color: AppTheme.darkCharcoal, size: 22),
+                  onPressed: () {},
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 2. PREMIUM MATCHES BANNER
+  Widget _buildPremiumBanner() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF042415),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF042415).withOpacity(0.15),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
           ],
         ),
-      ),
-      padding: const EdgeInsets.only(top: 60, left: 16, right: 16, bottom: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
+        child: Row(
+          children: [
+            // Shield Badge
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFD4AF37), width: 1.5),
+                color: Colors.white.withOpacity(0.05),
+              ),
+              child: const Icon(Icons.shield_outlined, color: Color(0xFFD4AF37), size: 24),
+            ),
+            const SizedBox(width: 14),
+            // Text Content
+            Expanded(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Matches',
+                    'Premium Matches',
                     style: GoogleFonts.outfit(
-                      fontSize: 28,
+                      fontSize: 15,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Discover compatible matches for a blessed marriage',
+                    'Get up to 5x more visibility and connect with serious members.',
                     style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: Colors.white.withAlpha(178),
+                      fontSize: 10,
+                      color: Colors.white.withOpacity(0.7),
+                      height: 1.3,
                     ),
                   ),
                 ],
               ),
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.search_outlined, color: Colors.white, size: 26),
-                    onPressed: () {},
-                  ),
-                  Stack(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.tune_outlined, color: Colors.white, size: 24),
-                        onPressed: () {},
-                      ),
-                      Positioned(
-                        right: 8,
-                        top: 8,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFD4AF37), // Gold filter badge
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Text(
-                            '2',
-                            style: TextStyle(color: Color(0xFF04140C), fontSize: 8, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+            ),
+            const SizedBox(width: 8),
+            // Upgrade button
+            ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFFECC8),
+                foregroundColor: const Color(0xFF042415),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                minimumSize: Size.zero,
               ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          _buildStatusFiltersRow(),
-        ],
+              child: Text(
+                'Upgrade to Premium >',
+                style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.bold, color: const Color(0xFF042415)),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // --- HORIZONTAL STATUS FILTERS ROW ---
-  Widget _buildStatusFiltersRow() {
-    final List<Map<String, dynamic>> filters = [
-      {'label': 'All Matches', 'count': '128'},
-      {'label': 'New This Week', 'count': '24'},
-      {'label': 'Online Now', 'count': '18'},
-      {'label': 'Recently Active', 'count': '36'},
+  // 3. SUB-NAVIGATION TAB BAR
+  Widget _buildSubNavigationTabBar() {
+    final List<Map<String, dynamic>> tabs = [
+      {'label': 'All Matches', 'icon': Icons.group_outlined},
+      {'label': 'New Members', 'icon': Icons.person_add_alt_1_outlined},
+      {'label': 'Recently Active', 'icon': Icons.access_time},
+      {'label': 'Near You', 'icon': Icons.location_on_outlined},
+      {'label': 'Compatible', 'icon': Icons.favorite_outline},
     ];
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: List.generate(filters.length, (index) {
+    return Container(
+      color: Colors.white,
+      height: 48,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: tabs.length,
+        itemBuilder: (context, index) {
           bool isSelected = _selectedStatusFilter == index;
-          final filter = filters[index];
+          final tab = tabs[index];
           return GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () => setState(() => _selectedStatusFilter = index),
             child: Container(
-              margin: const EdgeInsets.only(right: 12),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              margin: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF1E5631).withAlpha(51) : Colors.white.withAlpha(25),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: isSelected ? const Color(0xFF10B981) : Colors.white24,
-                  width: 1,
+                border: Border(
+                  bottom: BorderSide(
+                    color: isSelected ? AppTheme.primaryGreen : Colors.transparent,
+                    width: 2.5,
+                  ),
                 ),
               ),
               child: Row(
                 children: [
-                  Text(
-                    filter['label'],
-                    style: GoogleFonts.inter(
-                      fontSize: 11,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                      color: Colors.white,
-                    ),
+                  Icon(
+                    tab['icon'],
+                    size: 16,
+                    color: isSelected ? AppTheme.primaryGreen : AppTheme.secondaryGrey,
                   ),
                   const SizedBox(width: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFF10B981) : Colors.white12,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      filter['count'],
-                      style: GoogleFonts.inter(
-                        fontSize: 8,
-                        fontWeight: FontWeight.bold,
-                        color: isSelected ? Colors.white : Colors.white70,
-                      ),
+                  Text(
+                    tab['label'],
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      color: isSelected ? AppTheme.primaryGreen : AppTheme.secondaryGrey,
                     ),
                   ),
                 ],
               ),
             ),
           );
-        }),
+        },
       ),
     );
   }
 
-  // --- MAIN FEED BODY ---
-  Widget _buildMainFeedContent() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          _buildDropdownFiltersCard(),
-          const SizedBox(height: 16),
-          _buildIncreaseChancesCard(),
-          const SizedBox(height: 20),
-          _buildResultsHeader(),
-          const SizedBox(height: 16),
-          _buildCandidatesList(),
-          const SizedBox(height: 20),
-          _buildPaginationControls(),
-          const SizedBox(height: 24),
-          _buildTipsCard(),
-        ],
-      ),
-    );
-  }
-
-  // --- DROPDOWN FILTERS CARD ---
-  Widget _buildDropdownFiltersCard() {
+  // 4. FILTER BAR
+  Widget _buildFilterBar() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(8),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(child: _buildDropdownSelector('Age', _selectedAge, ['18 - 30', '31 - 40', '41+'])),
-              const SizedBox(width: 8),
-              Expanded(child: _buildDropdownSelector('Location', _selectedLocation, ['All', 'Niger', 'Kwara', 'Abuja'])),
-              const SizedBox(width: 8),
-              Expanded(child: _buildDropdownSelector('Education', _selectedEducation, ['All', 'Undergraduate', 'Graduate', 'Doctorate'])),
-              const SizedBox(width: 8),
-              Expanded(child: _buildDropdownSelector('Madhab', _selectedMadhab, ['All', 'Sunni', 'Maliki', 'Shafi\'i'])),
-            ],
-          ),
-          const SizedBox(height: 12),
-          const Divider(height: 1),
-          const SizedBox(height: 12),
-          GestureDetector(
-            onTap: () {},
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.tune_outlined, size: 16, color: AppTheme.primaryGreen),
-                const SizedBox(width: 6),
-                Text(
-                  'More Filters',
-                  style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.primaryGreen),
-                ),
-                const Icon(Icons.keyboard_arrow_down, size: 16, color: AppTheme.primaryGreen),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDropdownSelector(String label, String value, List<String> items) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF4F6F0),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.black12, width: 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.inter(fontSize: 8, color: AppTheme.secondaryGrey),
-          ),
-          const SizedBox(height: 2),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  value,
-                  style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const Icon(Icons.keyboard_arrow_down, size: 12, color: AppTheme.secondaryGrey),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // --- INCREASE YOUR CHANCES PROMO CARD ---
-  Widget _buildIncreaseChancesCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFE8F5E9),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC8E6C9), width: 1),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: const BoxDecoration(
-              color: Colors.white70,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.trending_up, color: Color(0xFF2E7D32), size: 24),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Increase Your Chances',
-                  style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: const Color(0xFF1B5E20)),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Complete your profile, verify your identity and add more photos.',
-                  style: GoogleFonts.inter(fontSize: 9, color: AppTheme.darkCharcoal, height: 1.3),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Column(
-            children: [
-              SizedBox(
-                width: 44,
-                height: 44,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    const CircularProgressIndicator(
-                      value: 0.87,
-                      strokeWidth: 3.5,
-                      backgroundColor: Colors.white30,
-                      color: Color(0xFF2E7D32),
-                    ),
-                    Text(
-                      '87%',
-                      style: GoogleFonts.outfit(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF1B5E20)),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 6),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF042415),
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(80, 26),
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('Improve Profile', style: GoogleFonts.inter(fontSize: 7, fontWeight: FontWeight.bold)),
-                    const Icon(Icons.chevron_right, size: 8, color: Colors.white),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // --- RESULTS LIST HEADER ---
-  Widget _buildResultsHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          '128 Matches Found',
-          style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
-        ),
-        Row(
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
           children: [
-            Text(
-              'Sort by: ',
-              style: GoogleFonts.inter(fontSize: 11, color: AppTheme.secondaryGrey),
-            ),
-            GestureDetector(
-              onTap: () {},
+            // Filter Badge
+            _buildFilterChip(
               child: Row(
                 children: [
+                  const Icon(Icons.filter_list, size: 12, color: AppTheme.darkCharcoal),
+                  const SizedBox(width: 4),
                   Text(
-                    'Best Match',
-                    style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.primaryGreen),
+                    'Filter',
+                    style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
                   ),
-                  const Icon(Icons.keyboard_arrow_down, size: 14, color: AppTheme.primaryGreen),
                 ],
               ),
             ),
-            const SizedBox(width: 12),
-            // View toggles
-            const Icon(Icons.list, color: AppTheme.primaryGreen, size: 20),
-            const SizedBox(width: 8),
-            Icon(Icons.grid_view_outlined, color: AppTheme.secondaryGrey.withAlpha(128), size: 18),
+            _buildDropdownFilterChip('Age', _selectedAge, ['18 - 30', '20 - 30', '31 - 40', '41+'], (val) {
+              setState(() => _selectedAge = val);
+            }),
+            _buildDropdownFilterChip('Location', _selectedLocation, ['All', 'Niger', 'Kwara', 'Abuja'], (val) {
+              setState(() => _selectedLocation = val);
+            }),
+            _buildDropdownFilterChip('Education', _selectedEducation, ['All', 'Undergraduate', 'Graduate', 'Doctorate'], (val) {
+              setState(() => _selectedEducation = val);
+            }),
+            _buildFilterChip(
+              child: Text(
+                'More Filters',
+                style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w500, color: AppTheme.darkCharcoal),
+              ),
+            ),
+            _buildFilterChip(
+              child: Row(
+                children: [
+                  const Icon(Icons.refresh, size: 12, color: Colors.red),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Reset',
+                    style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.red),
+                  ),
+                ],
+              ),
+              onTap: () {
+                setState(() {
+                  _selectedAge = '20 - 30';
+                  _selectedLocation = 'All';
+                  _selectedEducation = 'All';
+                });
+              },
+            ),
           ],
         ),
-      ],
+      ),
     );
   }
 
-  // --- CANDIDATES LIST VIEW ---
-  Widget _buildCandidatesList() {
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _mockCandidates.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 16),
-      itemBuilder: (context, index) {
-        final candidate = _mockCandidates[index];
-        return _buildMatchCard(candidate);
-      },
+  Widget _buildFilterChip({required Widget child, VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF9FAF6),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey[200]!),
+        ),
+        child: child,
+      ),
     );
   }
 
-  Widget _buildMatchCard(Map<String, dynamic> candidate) {
-    String imageLink;
-    switch (candidate['img']) {
-      case 'aisha':
-        imageLink = _aishaPhoto;
-        break;
-      case 'yusuf':
-        imageLink = _yusufPhoto;
-        break;
-      case 'maryam':
-        imageLink = _maryamPhoto;
-        break;
-      default:
-        imageLink = _abdullahiPhoto;
-    }
-
+  Widget _buildDropdownFilterChip(String label, String value, List<String> options, Function(String) onChanged) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(8),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
+        color: const Color(0xFFF9FAF6),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Row(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: GoogleFonts.inter(fontSize: 7, color: AppTheme.secondaryGrey),
+              ),
+              const SizedBox(height: 1),
+              Text(
+                value,
+                style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+              ),
+            ],
+          ),
+          const SizedBox(width: 4),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.keyboard_arrow_down, size: 12, color: AppTheme.secondaryGrey),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 100),
+            itemBuilder: (context) => options.map((opt) => PopupMenuItem(value: opt, child: Text(opt, style: GoogleFonts.inter(fontSize: 11)))).toList(),
+            onSelected: onChanged,
           ),
         ],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Left: Photo with overlays
-          Stack(
+    );
+  }
+
+  // 5. DAILY PICKS SECTION
+  Widget _buildDailyPicksSection() {
+    final List<Map<String, dynamic>> dailyPicks = [
+      {
+        'name': 'Aisha Usman',
+        'age': 22,
+        'location': 'Ilorin, Kwara State',
+        'job': 'Undergraduate - Biology',
+        'status': 'Online',
+        'compatibility': '92%',
+        'img': _aishaPhoto,
+      },
+      {
+        'name': 'Yusuf Ahmad',
+        'age': 25,
+        'location': 'Minna, Niger State',
+        'job': 'B.Eng - Mechanical Eng.',
+        'status': 'Online',
+        'compatibility': '89%',
+        'img': _yusufPhoto,
+      },
+      {
+        'name': 'Fatima Bello',
+        'age': 24,
+        'location': 'Abuja, FCT',
+        'job': 'Undergraduate - Law',
+        'status': 'Recently Active',
+        'compatibility': '87%',
+        'img': _fatimaPhoto,
+      },
+      {
+        'name': 'Ibrahim Musa',
+        'age': 27,
+        'location': 'Kano, Kano State',
+        'job': 'B.Sc - Computer Science',
+        'status': 'Online',
+        'compatibility': '85%',
+        'img': _ibrahimPhoto,
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 24.0, left: 20, right: 20, bottom: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: SizedBox(
-                  width: 100,
-                  height: 120,
-                  child: Image.network(
-                    imageLink,
-                    fit: BoxFit.cover,
-                    errorBuilder: (c, e, s) => Container(color: Colors.grey[200]),
-                  ),
+              Text(
+                'Daily Picks',
+                style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+              ),
+              GestureDetector(
+                onTap: () {},
+                child: Text(
+                  'View all >',
+                  style: GoogleFonts.inter(fontSize: 11, color: AppTheme.primaryGreen, fontWeight: FontWeight.w600),
                 ),
               ),
-              // Top Left status badge
-              Positioned(
-                left: 6,
-                top: 6,
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 20.0, bottom: 12),
+          child: Text(
+            'Handpicked matches based on your preferences',
+            style: GoogleFonts.inter(fontSize: 11, color: AppTheme.secondaryGrey),
+          ),
+        ),
+        SizedBox(
+          height: 255,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: dailyPicks.length,
+            itemBuilder: (context, index) {
+              final pick = dailyPicks[index];
+              bool isOnline = pick['status'] == 'Online';
+              return GestureDetector(
+                onTap: () {
+                  context.push('/match-detail', extra: pick);
+                },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                  width: 145,
+                  margin: const EdgeInsets.symmetric(horizontal: 6),
                   decoration: BoxDecoration(
-                    color: candidate['statusBg'],
-                    borderRadius: BorderRadius.circular(4),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey[200]!),
                   ),
-                  child: Text(
-                    candidate['statusBadge'],
-                    style: GoogleFonts.inter(color: Colors.white, fontSize: 7, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-              // Top Right Heart
-              Positioned(
-                right: 6,
-                top: 6,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withAlpha(76),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.favorite_border, color: Colors.white, size: 12),
-                ),
-              ),
-              // Bottom left verified badge on image
-              Positioned(
-                left: 6,
-                bottom: 6,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withAlpha(128),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.check, color: Color(0xFF10B981), size: 8),
-                      const SizedBox(width: 2),
-                      Text(
-                        'Verified',
-                        style: GoogleFonts.inter(color: Colors.white, fontSize: 7, fontWeight: FontWeight.bold),
+                      // Picture & Badges
+                      Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+                            child: Image.network(
+                              pick['img'],
+                              height: 140,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          // Status badge
+                          Positioned(
+                            left: 8,
+                            top: 8,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 4,
+                                    height: 4,
+                                    decoration: BoxDecoration(
+                                      color: isOnline ? const Color(0xFF10B981) : Colors.grey,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    pick['status'],
+                                    style: GoogleFonts.inter(fontSize: 7, color: Colors.white, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          // Favorite button
+                          Positioned(
+                            right: 8,
+                            top: 8,
+                            child: Container(
+                              width: 26,
+                              height: 26,
+                              decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                              child: const Center(
+                                child: Icon(Icons.favorite_border, size: 14, color: AppTheme.secondaryGrey),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Details
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    '${pick['name']}, ${pick['age']}',
+                                    style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(Icons.verified, size: 12, color: Color(0xFF10B981)),
+                              ],
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              pick['location'],
+                              style: GoogleFonts.inter(fontSize: 8, color: AppTheme.secondaryGrey),
+                            ),
+                            const SizedBox(height: 2),
+                            Row(
+                              children: [
+                                const Icon(Icons.work_outline, size: 8, color: AppTheme.secondaryGrey),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    pick['job'],
+                                    style: GoogleFonts.inter(fontSize: 7, color: AppTheme.secondaryGrey),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            // Islamic tags
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE8F5E9),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.check, size: 6, color: Color(0xFF2E7D32)),
+                                      const SizedBox(width: 2),
+                                      Text('Practicing', style: GoogleFonts.inter(fontSize: 6, color: const Color(0xFF2E7D32), fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1.5),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE8EAF6),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text('Sunni', style: GoogleFonts.inter(fontSize: 6, color: const Color(0xFF1A237E), fontWeight: FontWeight.bold)),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              '${pick['compatibility']} Compatible',
+                              style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.bold, color: const Color(0xFF10B981)),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 6. INCREASE YOUR CHANCES PROMO CARD
+  Widget _buildIncreaseChancesCard() {
+    final List<Map<String, dynamic>> actions = [
+      {'title': 'Add More\nPhotos', 'percent': '+15%', 'icon': Icons.add_a_photo_outlined},
+      {'title': 'Verify Your\nProfile', 'percent': '+30%', 'icon': Icons.verified_user_outlined},
+      {'title': 'Add About\nYou', 'percent': '+10%', 'icon': Icons.edit_note_outlined},
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey[200]!),
+        ),
+        child: Row(
+          children: [
+            // Left content
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Increase Your Chances',
+                    style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Complete your profile and get more matches that are right for you.',
+                    style: GoogleFonts.inter(fontSize: 10, color: AppTheme.secondaryGrey, height: 1.3),
+                  ),
+                  const SizedBox(height: 12),
+                  // Progress line
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Profile Completeness',
+                              style: GoogleFonts.inter(fontSize: 8, color: AppTheme.secondaryGrey),
+                            ),
+                            const SizedBox(height: 4),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(2),
+                              child: const LinearProgressIndicator(
+                                value: 0.92,
+                                backgroundColor: Color(0xFFECEFF1),
+                                color: AppTheme.primaryGreen,
+                                minHeight: 4,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '92%',
+                        style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.primaryGreen),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 14),
+            // Right scrolling completion checks
+            SizedBox(
+              width: 140,
+              height: 70,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: actions.length,
+                      itemBuilder: (context, index) {
+                        final act = actions[index];
+                        return Container(
+                          width: 60,
+                          margin: const EdgeInsets.only(right: 6),
+                          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF9FAF6),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.grey[200]!),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(act['icon'], size: 14, color: AppTheme.primaryGreen),
+                              const SizedBox(height: 3),
+                              Text(
+                                act['title'],
+                                style: GoogleFonts.inter(fontSize: 6, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal, height: 1.1),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                act['percent'],
+                                style: GoogleFonts.inter(fontSize: 6, color: AppTheme.primaryGreen, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right, size: 14, color: AppTheme.secondaryGrey),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 7. RECOMMENDED FOR YOU SECTION
+  Widget _buildRecommendedSection() {
+    final List<Map<String, dynamic>> recommended = [
+      {
+        'name': 'Maryam Abdullahi',
+        'age': 23,
+        'location': 'Lagos, State',
+        'job': 'B.Sc - Biochemistry',
+        'status': 'Online',
+        'tags': ['Practicing Muslim', 'Sunni', "5'8\" • Average Build"],
+        'compatibility': '91%',
+        'img': _maryamPhoto,
+      },
+      {
+        'name': 'Hassan Aliyu',
+        'age': 26,
+        'location': 'Kaduna, Kaduna State',
+        'job': 'B.Eng - Civil Engineering',
+        'status': 'Recently Active',
+        'tags': ['Practicing Muslim', 'Sunni', "5'8\" • Athletic Build"],
+        'compatibility': '88%',
+        'img': _hassanPhoto,
+      },
+      {
+        'name': 'Zainab Lawal',
+        'age': 21,
+        'location': 'Jos, Plateau State',
+        'job': 'Undergraduate - Mass Comm.',
+        'status': 'Online',
+        'tags': ['Practicing Muslim', 'Sunni', "5'3\" • Slim Build"],
+        'compatibility': '86%',
+        'img': _zainabPhoto,
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 24.0, left: 20, right: 20, bottom: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Recommended for You',
+                style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+              ),
+              GestureDetector(
+                onTap: () {},
+                child: Text(
+                  'View all >',
+                  style: GoogleFonts.inter(fontSize: 11, color: AppTheme.primaryGreen, fontWeight: FontWeight.w600),
+                ),
               ),
             ],
           ),
-          const SizedBox(width: 12),
-          // Middle Details Block
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      candidate['name'],
-                      style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
-                    ),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.verified, color: Color(0xFF10B981), size: 14),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '${candidate['age']} years  •  ${candidate['hijri']}',
-                  style: GoogleFonts.inter(fontSize: 10, color: AppTheme.secondaryGrey),
-                ),
-                const SizedBox(height: 8),
-                _buildCardDetailRow(Icons.location_on_outlined, candidate['state']),
-                const SizedBox(height: 3),
-                _buildCardDetailRow(Icons.school_outlined, candidate['job']),
-                const SizedBox(height: 3),
-                _buildCardDetailRow(Icons.brightness_3_outlined, '${candidate['madhab']}  •  ${candidate['practice']}'),
-                const SizedBox(height: 8),
-                // Tags Row
-                Wrap(
-                  spacing: 4,
-                  runSpacing: 4,
-                  children: [
-                    _buildCapsuleTag(candidate['height'], const Color(0xFFE8F5E9), const Color(0xFF2E7D32)),
-                    _buildCapsuleTag(candidate['marital'], const Color(0xFFFFEBEE), const Color(0xFFC62828)),
-                    _buildCapsuleTag(candidate['specialTag'], candidate['specialTagBg'], candidate['specialTagColor']),
-                  ],
-                ),
-              ],
-            ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 20.0, bottom: 12),
+          child: Text(
+            'Members who match your values and preferences',
+            style: GoogleFonts.inter(fontSize: 11, color: AppTheme.secondaryGrey),
           ),
-          const SizedBox(width: 6),
-          // Right Actions block
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
+        ),
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          itemCount: recommended.length,
+          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          itemBuilder: (context, index) {
+            final rec = recommended[index];
+            bool isOnline = rec['status'] == 'Online';
+            return Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey[200]!),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Compatibility Score
-                  Container(
-                    width: 38,
-                    height: 38,
-                    padding: const EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        CircularProgressIndicator(
-                          value: candidate['compatibilityVal'],
-                          strokeWidth: 2,
-                          backgroundColor: Colors.transparent,
-                          color: const Color(0xFF10B981),
+                  // Avatar Photo
+                  Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          rec['img'],
+                          width: 75,
+                          height: 75,
+                          fit: BoxFit.cover,
                         ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                      ),
+                      // Small online status dot
+                      Positioned(
+                        left: 4,
+                        bottom: 4,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: isOnline ? const Color(0xFF10B981) : Colors.grey,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 1.5),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 12),
+                  // Middle Details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
                             Text(
-                              candidate['compatibility'],
-                              style: GoogleFonts.outfit(fontSize: 9, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+                              '${rec['name']}, ${rec['age']}',
+                              style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
                             ),
-                            Text(
-                              'Comp.',
-                              style: GoogleFonts.inter(fontSize: 5, color: AppTheme.secondaryGrey),
-                            ),
+                            const SizedBox(width: 4),
+                            const Icon(Icons.verified, size: 12, color: Color(0xFF10B981)),
                           ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          rec['location'],
+                          style: GoogleFonts.inter(fontSize: 8, color: AppTheme.secondaryGrey),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          rec['job'],
+                          style: GoogleFonts.inter(fontSize: 8, color: AppTheme.secondaryGrey),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 6),
+                        // Tags row
+                        Wrap(
+                          spacing: 4,
+                          runSpacing: 4,
+                          children: (rec['tags'] as List<String>).map((tag) {
+                            return Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF9FAF6),
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(color: Colors.grey[100]!),
+                              ),
+                              child: Text(
+                                tag,
+                                style: GoogleFonts.inter(fontSize: 7, color: AppTheme.secondaryGrey, fontWeight: FontWeight.w500),
+                              ),
+                            );
+                          }).toList(),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 2),
-                  const Icon(Icons.more_vert, color: AppTheme.secondaryGrey, size: 18),
-                ],
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () {
-                  if (candidate['name'] == 'Aisha Usman') {
-                    context.push('/profile');
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Profile for ${candidate['name']} is mocked. Directing to Aisha Usman\'s profile.', style: GoogleFonts.inter()),
-                        action: SnackBarAction(
-                          label: 'View',
-                          onPressed: () => context.push('/profile'),
+                  const SizedBox(width: 8),
+                  // Right actions column
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            rec['compatibility'],
+                            style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF10B981)),
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            'Compatible',
+                            style: GoogleFonts.inter(fontSize: 7, color: AppTheme.secondaryGrey),
+                          ),
+                          const SizedBox(width: 6),
+                          const Icon(Icons.bookmark_border_outlined, size: 16, color: AppTheme.secondaryGrey),
+                        ],
+                      ),
+                      const SizedBox(height: 28),
+                      ElevatedButton(
+                        onPressed: () {
+                          context.push('/match-detail', extra: rec);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF042415),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          minimumSize: Size.zero,
+                        ),
+                        child: Text(
+                          'View Profile',
+                          style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.bold),
                         ),
                       ),
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF042415),
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(76, 28),
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                ),
-                child: Text('View Profile', style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.bold)),
-              ),
-              const SizedBox(height: 6),
-              OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppTheme.darkCharcoal,
-                  side: const BorderSide(color: Color(0xFFE0E0E0), width: 1),
-                  minimumSize: const Size(76, 28),
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.favorite_border, size: 8, color: AppTheme.darkCharcoal),
-                    const SizedBox(width: 3),
-                    Text('Save', style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCardDetailRow(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, size: 11, color: AppTheme.primaryGreen),
-        const SizedBox(width: 6),
-        Expanded(
-          child: Text(
-            text,
-            style: GoogleFonts.inter(fontSize: 9, color: AppTheme.darkCharcoal),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCapsuleTag(String label, Color bg, Color textCol) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        label,
-        style: GoogleFonts.inter(fontSize: 8, fontWeight: FontWeight.bold, color: textCol),
-      ),
-    );
-  }
-
-  // --- PAGINATION CONTROLS ---
-  Widget _buildPaginationControls() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          icon: const Icon(Icons.chevron_left, color: AppTheme.secondaryGrey),
-          onPressed: _currentPage > 1 ? () => setState(() => _currentPage--) : null,
-        ),
-        const SizedBox(width: 8),
-        _buildPageNumber(1),
-        const SizedBox(width: 8),
-        _buildPageNumber(2),
-        const SizedBox(width: 8),
-        _buildPageNumber(3),
-        const SizedBox(width: 8),
-        Text('...', style: GoogleFonts.inter(color: AppTheme.secondaryGrey, fontSize: 12)),
-        const SizedBox(width: 8),
-        _buildPageNumber(9),
-        const SizedBox(width: 8),
-        IconButton(
-          icon: const Icon(Icons.chevron_right, color: AppTheme.secondaryGrey),
-          onPressed: _currentPage < 9 ? () => setState(() => _currentPage++) : null,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPageNumber(int page) {
-    bool isActive = _currentPage == page;
-    return GestureDetector(
-      onTap: () => setState(() => _currentPage = page),
-      child: Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-          color: isActive ? const Color(0xFF042415) : Colors.transparent,
-          shape: BoxShape.circle,
-        ),
-        child: Center(
-          child: Text(
-            '$page',
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-              color: isActive ? Colors.white : AppTheme.darkCharcoal,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // --- TA'ARUF TIPS CARD ---
-  Widget _buildTipsCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.black.withAlpha(8), width: 1),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: const BoxDecoration(
-              color: Color(0xFF042415),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.auto_stories_outlined,
-              color: AppTheme.accentGold,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Tips for a Successful Ta\'aruf',
-                  style: GoogleFonts.outfit(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.darkCharcoal,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildTipSubItem(Icons.verified_outlined, 'Be sincere'),
-                    _buildTipSubItem(Icons.people_outline, 'Involve Wali'),
-                    _buildTipSubItem(Icons.chat_bubble_outline, 'Respect boundaries'),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          const Icon(Icons.chevron_right, color: AppTheme.secondaryGrey, size: 20),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTipSubItem(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, size: 10, color: AppTheme.primaryGreen),
-        const SizedBox(width: 4),
-        Text(
-          text,
-          style: GoogleFonts.inter(fontSize: 8, color: AppTheme.secondaryGrey),
-        ),
-      ],
-    );
-  }
-
-  // --- CUSTOM BOTTOM NAVIGATION BAR ---
-  Widget _buildCustomBottomNav() {
-    return Container(
-      height: 85,
-      color: const Color(0xFF04140C),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _buildNavItem(Icons.home_outlined, 'Home', 0),
-          _buildNavItem(Icons.favorite, 'Matches', 1), // Matches selected
-          _buildWaliChatButton(),
-          _buildNavItem(Icons.supervisor_account_outlined, 'Counseling', 2),
-          _buildNavItem(Icons.person_outline, 'Profile', 3),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, String label, int index) {
-    bool isSelected = _currentIndex == index;
-    return GestureDetector(
-      onTap: () {
-        if (index == 0) {
-          context.go('/home');
-        } else if (index == 3) {
-          context.push('/profile');
-        } else {
-          setState(() {
-            _currentIndex = index;
-          });
-        }
-      },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: isSelected ? const Color(0xFF10B981) : Colors.white60,
-            size: 24,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected ? const Color(0xFF10B981) : Colors.white60,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWaliChatButton() {
-    return GestureDetector(
-      onTap: () {
-        context.push('/wali-chat');
-      },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Transform.translate(
-            offset: const Offset(0, -6),
-            child: Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: const Color(0xFFD4AF37),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFD4AF37).withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+                    ],
                   ),
                 ],
               ),
-              child: const Icon(
-                Icons.people_alt,
-                color: Color(0xFF04140C),
-                size: 24,
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  // 8. TRUST IN ALLAH CARD
+  Widget _buildTrustInAllahCard() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF3E8FF),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFD8B4FE).withOpacity(0.4)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+              child: const Icon(Icons.menu_book, color: Color(0xFF7C3AED), size: 20),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Trust in Allah',
+                    style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: const Color(0xFF5B21B6)),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '“And among His signs is that He created for you from yourselves spouses that you may find tranquility in them.” - Qur\'an 30:21',
+                    style: GoogleFonts.inter(fontSize: 9, color: const Color(0xFF7C3AED), height: 1.3),
+                  ),
+                ],
               ),
             ),
-          ),
-          Transform.translate(
-            offset: const Offset(0, -2),
-            child: Text(
-              'Wali Chat',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFFD4AF37),
+            const SizedBox(width: 8),
+            ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF7C3AED),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                minimumSize: Size.zero,
+              ),
+              child: Text(
+                'Read More',
+                style: GoogleFonts.inter(fontSize: 8, fontWeight: FontWeight.bold),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

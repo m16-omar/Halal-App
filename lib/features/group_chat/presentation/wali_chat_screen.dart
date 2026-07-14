@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_theme.dart';
+import '../../../shared/components/custom_bottom_nav.dart';
 
 class WaliChatScreen extends ConsumerStatefulWidget {
   const WaliChatScreen({super.key});
@@ -12,7 +13,7 @@ class WaliChatScreen extends ConsumerStatefulWidget {
 }
 
 class _WaliChatScreenState extends ConsumerState<WaliChatScreen> {
-  int _currentIndex = 4; // Special Wali Chat selected
+  int _currentIndex = 2; // Special Wali Chat selected
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
@@ -25,46 +26,53 @@ class _WaliChatScreenState extends ConsumerState<WaliChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAF6),
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: () async {
-                  await Future.delayed(const Duration(seconds: 1));
-                  if (mounted) {
-                    setState(() {});
-                  }
-                },
-                color: AppTheme.primaryGreen,
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        _buildSupervisionCard(),
-                        const SizedBox(height: 12),
-                        _buildQuoteAndProgressRow(),
-                        const SizedBox(height: 20),
-                        _buildChatFeedSection(),
-                        const SizedBox(height: 16),
-                        _buildStartConversationPrompts(),
-                        const SizedBox(height: 16),
-                        _buildInputComposer(),
-                        const SizedBox(height: 20),
-                        _buildActionsFooterSection(),
-                      ],
+      body: Column(
+        children: [
+          Expanded(
+            child: SafeArea(
+              bottom: false,
+              child: Column(
+                children: [
+                  _buildHeader(),
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: () async {
+                        await Future.delayed(const Duration(seconds: 1));
+                        if (mounted) {
+                          setState(() {});
+                        }
+                      },
+                      color: AppTheme.primaryGreen,
+                      child: SingleChildScrollView(
+                        controller: _scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              _buildSupervisionCard(),
+                              const SizedBox(height: 12),
+                              _buildQuoteAndProgressRow(),
+                              const SizedBox(height: 20),
+                              _buildChatFeedSection(),
+                              const SizedBox(height: 16),
+                              _buildStartConversationPrompts(),
+                              const SizedBox(height: 16),
+                              _buildInputComposer(),
+                              const SizedBox(height: 20),
+                              _buildActionsFooterSection(),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
-            _buildCustomBottomNav(),
-          ],
-        ),
+          ),
+          _buildCustomBottomNav(),
+        ],
       ),
     );
   }
@@ -76,10 +84,11 @@ class _WaliChatScreenState extends ConsumerState<WaliChatScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       child: Row(
         children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppTheme.darkCharcoal, size: 24),
-            onPressed: () => context.pop(),
-          ),
+          if (context.canPop())
+            IconButton(
+              icon: const Icon(Icons.arrow_back, color: AppTheme.darkCharcoal, size: 24),
+              onPressed: () => context.pop(),
+            ),
           const SizedBox(width: 4),
           // Overlapping avatars
           SizedBox(
@@ -897,110 +906,6 @@ class _WaliChatScreenState extends ConsumerState<WaliChatScreen> {
 
   // --- CUSTOM BOTTOM NAVIGATION BAR ---
   Widget _buildCustomBottomNav() {
-    return Container(
-      height: 85,
-      color: const Color(0xFF04140C),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _buildNavItem(Icons.home_outlined, 'Home', 0),
-          _buildNavItem(Icons.favorite_border, 'Matches', 1),
-          _buildWaliChatButton(), // Highlighted Wali Chat selected
-          _buildNavItem(Icons.supervisor_account_outlined, 'Counseling', 2),
-          _buildNavItem(Icons.person_outline, 'Profile', 3),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, String label, int index) {
-    bool isSelected = _currentIndex == index;
-    return GestureDetector(
-      onTap: () {
-        if (index == 0) {
-          context.go('/home');
-        } else if (index == 1) {
-          context.push('/matches');
-        } else if (index == 3) {
-          context.push('/profile');
-        } else {
-          setState(() {
-            _currentIndex = index;
-          });
-        }
-      },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: isSelected ? const Color(0xFF10B981) : Colors.white60,
-            size: 24,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected ? const Color(0xFF10B981) : Colors.white60,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWaliChatButton() {
-    // Green/gold active indicator state
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _currentIndex = 4;
-        });
-      },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Transform.translate(
-            offset: const Offset(0, -6),
-            child: Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: const Color(0xFF0F3E22), // Highlighted deep green matching active
-                shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFD4AF37), width: 2), // Gold border for active
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFD4AF37).withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: const Icon(
-                Icons.people_alt,
-                color: Color(0xFFD4AF37), // Gold icon
-                size: 24,
-              ),
-            ),
-          ),
-          Transform.translate(
-            offset: const Offset(0, -2),
-            child: Text(
-              'Wali Chat',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFFD4AF37),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+    return const CustomBottomNav(currentIndex: 2);
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/network/api_client.dart';
 
 class SeekerUser {
@@ -7,6 +8,7 @@ class SeekerUser {
   final String gender;
   final String state;
   final String status;
+  final String waliName;
 
   SeekerUser({
     required this.id,
@@ -14,6 +16,7 @@ class SeekerUser {
     required this.gender,
     required this.state,
     required this.status,
+    required this.waliName,
   });
 
   factory SeekerUser.fromJson(Map<String, dynamic> json) {
@@ -23,6 +26,7 @@ class SeekerUser {
       gender: json['gender'] as String,
       state: json['state'] as String,
       status: json['status'] as String,
+      waliName: (json['wali_name'] as String?) ?? '',
     );
   }
 }
@@ -59,6 +63,71 @@ class AuthNotifier extends Notifier<AuthState> {
     return AuthState();
   }
 
+  // --- PERSISTENCE HELPERS ---
+  Future<void> _saveUserToPrefs(SeekerUser user) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('user_id', user.id);
+    await prefs.setString('user_fullname', user.fullName);
+    await prefs.setString('user_gender', user.gender);
+    await prefs.setString('user_state', user.state);
+    await prefs.setString('user_status', user.status);
+    await prefs.setString('user_wali_name', user.waliName);
+  }
+
+  Future<void> _clearUserFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('user_id');
+    await prefs.remove('user_fullname');
+    await prefs.remove('user_gender');
+    await prefs.remove('user_state');
+    await prefs.remove('user_status');
+    await prefs.remove('user_wali_name');
+  }
+
+  Future<bool> checkAutoLogin() async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getInt('user_id');
+      if (userId != null) {
+        final user = SeekerUser(
+          id: userId,
+          fullName: prefs.getString('user_fullname') ?? '',
+          gender: prefs.getString('user_gender') ?? '',
+          state: prefs.getString('user_state') ?? '',
+          status: prefs.getString('user_status') ?? 'Unverified',
+          waliName: prefs.getString('user_wali_name') ?? '',
+        );
+        state = AuthState(user: user);
+        return true;
+      }
+      state = AuthState();
+      return false;
+    } catch (e) {
+      state = AuthState(errorMessage: e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> isFirstTime() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final hasRunBefore = prefs.getBool('has_run_before');
+      return hasRunBefore != true;
+    } catch (_) {
+      return true; // Fallback to first-time user (safe route) if SharedPreferences fails
+    }
+  }
+
+  Future<void> markOnboardingComplete() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('has_run_before', true);
+    } catch (_) {
+      // Ignore write errors to prevent crashes
+    }
+  }
+
   Future<bool> login(String email, String password) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
@@ -70,6 +139,8 @@ class AuthNotifier extends Notifier<AuthState> {
       if (response['status'] == 'success') {
         final userData = response['user'];
         final user = SeekerUser.fromJson(userData);
+        await _saveUserToPrefs(user);
+        await markOnboardingComplete();
         state = AuthState(user: user);
         return true;
       } else {
@@ -82,7 +153,8 @@ class AuthNotifier extends Notifier<AuthState> {
     }
   }
 
-  void logout() {
+  Future<void> logout() async {
+    await _clearUserFromPrefs();
     state = AuthState();
   }
 
@@ -94,6 +166,7 @@ class AuthNotifier extends Notifier<AuthState> {
         gender: '',
         state: '',
         status: status,
+        waliName: '',
       ),
     );
   }
@@ -125,6 +198,8 @@ class AuthNotifier extends Notifier<AuthState> {
       if (response['status'] == 'success') {
         final userData = response['user'];
         final user = SeekerUser.fromJson(userData);
+        await _saveUserToPrefs(user);
+        await markOnboardingComplete();
         state = AuthState(user: user);
         return true;
       } else {
@@ -153,6 +228,7 @@ class AuthNotifier extends Notifier<AuthState> {
       if (response['status'] == 'success') {
         final userData = response['user'];
         final user = SeekerUser.fromJson(userData);
+        await _saveUserToPrefs(user);
         state = AuthState(user: user);
         return true;
       } else {

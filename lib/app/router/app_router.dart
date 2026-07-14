@@ -10,6 +10,10 @@ import '../../features/profile/presentation/profile_screen.dart';
 import '../../features/group_chat/presentation/wali_chat_screen.dart';
 import '../../features/meetings/presentation/propose_meeting_screen.dart';
 import '../../features/authentication/presentation/login_screen.dart';
+import '../../features/authentication/presentation/forgot_password_screen.dart';
+import '../../features/counseling/presentation/counseling_screen.dart';
+import '../../features/matchmaking/presentation/match_detail_screen.dart';
+import '../../features/group_chat/presentation/direct_chat_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
@@ -25,6 +29,13 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/login',
       builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: '/forgot-password',
+      builder: (context, state) {
+        final email = state.uri.queryParameters['email'];
+        return ForgotPasswordScreen(prefilledEmail: email);
+      },
     ),
     GoRoute(
       path: '/role-selection',
@@ -57,6 +68,24 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/propose-meeting',
       builder: (context, state) => const ProposeMeetingScreen(),
+    ),
+    GoRoute(
+      path: '/counseling',
+      builder: (context, state) => const CounselingScreen(),
+    ),
+    GoRoute(
+      path: '/match-detail',
+      builder: (context, state) {
+        final candidate = state.extra as Map<String, dynamic>?;
+        return MatchDetailScreen(candidateData: candidate);
+      },
+    ),
+    GoRoute(
+      path: '/direct-chat',
+      builder: (context, state) {
+        final candidate = state.extra as Map<String, dynamic>?;
+        return DirectChatScreen(candidateData: candidate);
+      },
     ),
   ],
 );

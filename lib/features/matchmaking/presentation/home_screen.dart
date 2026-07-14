@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../authentication/presentation/auth_provider.dart';
+import '../../../shared/components/custom_bottom_nav.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -695,19 +696,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget _buildCandidateCard(Map<String, dynamic> candidate) {
     return GestureDetector(
       onTap: () {
-        if (candidate['name'] == 'Aisha') {
-          context.push('/profile');
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Profile for ${candidate['name']} is mocked. Opening Aisha\'s profile instead for testing.', style: GoogleFonts.inter()),
-              action: SnackBarAction(
-                label: 'View',
-                onPressed: () => context.push('/profile'),
-              ),
-            ),
-          );
-        }
+        context.push('/match-detail', extra: candidate);
       },
       child: Container(
         width: 165,
@@ -1320,105 +1309,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   // --- CUSTOM BOTTOM NAVIGATION BAR ---
   Widget _buildCustomBottomNav() {
-    return Container(
-      height: 85,
-      color: const Color(0xFF04140C),
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _buildNavItem(Icons.home_filled, 'Home', 0),
-          _buildNavItem(Icons.favorite_border, 'Matches', 1),
-          _buildWaliChatButton(),
-          _buildNavItem(Icons.supervisor_account_outlined, 'Counseling', 2),
-          _buildNavItem(Icons.person_outline, 'Profile', 3),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, String label, int index) {
-    bool isSelected = _currentIndex == index;
-    return GestureDetector(
-      onTap: () {
-        if (index == 1) {
-          context.push('/matches');
-        } else if (index == 3) {
-          context.push('/profile');
-        } else {
-          setState(() {
-            _currentIndex = index;
-          });
-        }
-      },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: isSelected ? const Color(0xFF10B981) : Colors.white60,
-            size: 24,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected ? const Color(0xFF10B981) : Colors.white60,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWaliChatButton() {
-    return GestureDetector(
-      onTap: () {
-        context.push('/wali-chat');
-      },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Transform.translate(
-            offset: const Offset(0, -6),
-            child: Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: const Color(0xFFD4AF37),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFD4AF37).withOpacity(0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: const Icon(
-                Icons.people_alt,
-                color: Color(0xFF04140C),
-                size: 24,
-              ),
-            ),
-          ),
-          Transform.translate(
-            offset: const Offset(0, -2),
-            child: Text(
-              'Wali Chat',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFFD4AF37),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+    return const CustomBottomNav(currentIndex: 0);
   }
 }
 

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../app/theme/app_theme.dart';
+import '../../authentication/presentation/auth_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -26,10 +27,30 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
     _controller.forward();
 
-    // Navigate to Welcome screen after 2.5 seconds using go_router
-    Future.delayed(const Duration(milliseconds: 2500), () {
-      if (mounted) {
-        context.go('/welcome');
+    // Navigate to correct screen after 2.5 seconds based on auto-login status
+    Future.delayed(const Duration(milliseconds: 2500), () async {
+      if (!mounted) return;
+      
+      try {
+        final notifier = ref.read(authProvider.notifier);
+        final firstTime = await notifier.isFirstTime();
+        
+        if (firstTime) {
+          if (mounted) context.go('/welcome');
+        } else {
+          final isLoggedIn = await notifier.checkAutoLogin();
+          if (mounted) {
+            if (isLoggedIn) {
+              context.go('/home');
+            } else {
+              context.go('/login');
+            }
+          }
+        }
+      } catch (e) {
+        if (mounted) {
+          context.go('/welcome');
+        }
       }
     });
   }
