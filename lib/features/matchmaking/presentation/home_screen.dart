@@ -168,7 +168,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.notifications_none_outlined, color: AppTheme.softCream, size: 26),
-                        onPressed: () {},
+                        onPressed: () => context.push('/notifications'),
                       ),
                       Positioned(
                         right: 8,
@@ -189,11 +189,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.chat_bubble_outline, color: AppTheme.softCream, size: 24),
-                    onPressed: () {},
+                    onPressed: () => context.push('/messages'),
                   ),
                   IconButton(
                     icon: const Icon(Icons.search_outlined, color: AppTheme.softCream, size: 26),
-                    onPressed: () {},
+                    onPressed: () => context.push('/search'),
                   ),
                 ],
               ),

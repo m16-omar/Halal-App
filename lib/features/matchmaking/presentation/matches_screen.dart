@@ -114,7 +114,7 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
                 ),
                 child: IconButton(
                   icon: const Icon(Icons.search, color: AppTheme.darkCharcoal, size: 22),
-                  onPressed: () {},
+                  onPressed: () => context.push('/search'),
                 ),
               ),
               const SizedBox(width: 8),

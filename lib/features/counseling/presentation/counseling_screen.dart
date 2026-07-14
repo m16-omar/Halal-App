@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../shared/components/custom_bottom_nav.dart';
 
@@ -114,7 +115,7 @@ class _CounselingScreenState extends ConsumerState<CounselingScreen> {
                       color: Colors.white,
                       size: 28,
                     ),
-                    onPressed: () {},
+                    onPressed: () => context.push('/notifications'),
                   ),
                   Positioned(
                     right: 8,

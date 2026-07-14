@@ -103,7 +103,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.notifications_none_outlined, color: AppTheme.darkCharcoal, size: 26),
-                    onPressed: () {},
+                    onPressed: () => context.push('/notifications'),
                   ),
                   Positioned(
                     right: 8,

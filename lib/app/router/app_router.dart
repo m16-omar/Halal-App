@@ -14,6 +14,9 @@ import '../../features/authentication/presentation/forgot_password_screen.dart';
 import '../../features/counseling/presentation/counseling_screen.dart';
 import '../../features/matchmaking/presentation/match_detail_screen.dart';
 import '../../features/group_chat/presentation/direct_chat_screen.dart';
+import '../../features/group_chat/presentation/messages_screen.dart';
+import '../../features/matchmaking/presentation/search_screen.dart';
+import '../../features/notifications/presentation/notifications_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
@@ -86,6 +89,18 @@ final GoRouter appRouter = GoRouter(
         final candidate = state.extra as Map<String, dynamic>?;
         return DirectChatScreen(candidateData: candidate);
       },
+    ),
+    GoRoute(
+      path: '/messages',
+      builder: (context, state) => const MessagesScreen(),
+    ),
+    GoRoute(
+      path: '/search',
+      builder: (context, state) => const SearchScreen(),
+    ),
+    GoRoute(
+      path: '/notifications',
+      builder: (context, state) => const NotificationsScreen(),
     ),
   ],
 );
