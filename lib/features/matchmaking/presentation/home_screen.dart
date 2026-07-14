@@ -17,6 +17,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   int _currentIndex = 0;
   int _selectedHeroPage = 0;
   int _selectedCandidatePage = 0;
+  final Set<String> _bookmarkedCandidates = {};
 
   // Mock profile images
   final String _abdullahiAvatar = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80';
@@ -774,13 +775,45 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Positioned(
               right: 8,
               top: 8,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3),
-                  shape: BoxShape.circle,
+              child: GestureDetector(
+                onTap: () {
+                  final candidateName = candidate['name'] as String;
+                  setState(() {
+                    if (_bookmarkedCandidates.contains(candidateName)) {
+                      _bookmarkedCandidates.remove(candidateName);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('$candidateName removed from saved profiles'),
+                          duration: const Duration(seconds: 1),
+                        ),
+                      );
+                    } else {
+                      _bookmarkedCandidates.add(candidateName);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('$candidateName added to saved profiles!'),
+                          duration: const Duration(seconds: 1),
+                        ),
+                      );
+                    }
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.3),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    _bookmarkedCandidates.contains(candidate['name'])
+                        ? Icons.bookmark
+                        : Icons.bookmark_border,
+                    color: _bookmarkedCandidates.contains(candidate['name'])
+                        ? AppTheme.accentGold
+                        : Colors.white,
+                    size: 16,
+                  ),
                 ),
-                child: const Icon(Icons.bookmark_border, color: Colors.white, size: 16),
               ),
             ),
             // Bottom Info Column

@@ -17,6 +17,8 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
   String _selectedAge = '20 - 30';
   String _selectedLocation = 'All';
   String _selectedEducation = 'All';
+  final Set<String> _bookmarkedRecommended = {};
+  final Set<String> _favoritedDailyPicks = {};
 
   // Mock portraits
   final String _aishaPhoto = 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&auto=format&fit=crop&q=80';
@@ -525,12 +527,44 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
                           Positioned(
                             right: 8,
                             top: 8,
-                            child: Container(
-                              width: 26,
-                              height: 26,
-                              decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                              child: const Center(
-                                child: Icon(Icons.favorite_border, size: 14, color: AppTheme.secondaryGrey),
+                            child: GestureDetector(
+                              onTap: () {
+                                final pickName = pick['name'] as String;
+                                setState(() {
+                                  if (_favoritedDailyPicks.contains(pickName)) {
+                                    _favoritedDailyPicks.remove(pickName);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('$pickName removed from favorites'),
+                                        duration: const Duration(seconds: 1),
+                                      ),
+                                    );
+                                  } else {
+                                    _favoritedDailyPicks.add(pickName);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('$pickName added to favorites!'),
+                                        duration: const Duration(seconds: 1),
+                                      ),
+                                    );
+                                  }
+                                });
+                              },
+                              child: Container(
+                                width: 26,
+                                height: 26,
+                                decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                                child: Center(
+                                  child: Icon(
+                                    _favoritedDailyPicks.contains(pick['name'])
+                                        ? Icons.favorite
+                                        : Icons.favorite_border,
+                                    size: 14,
+                                    color: _favoritedDailyPicks.contains(pick['name'])
+                                        ? Colors.red
+                                        : AppTheme.secondaryGrey,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -923,7 +957,39 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
                             style: GoogleFonts.inter(fontSize: 7, color: AppTheme.secondaryGrey),
                           ),
                           const SizedBox(width: 6),
-                          const Icon(Icons.bookmark_border_outlined, size: 16, color: AppTheme.secondaryGrey),
+                          GestureDetector(
+                            onTap: () {
+                              final recName = rec['name'] as String;
+                              setState(() {
+                                if (_bookmarkedRecommended.contains(recName)) {
+                                  _bookmarkedRecommended.remove(recName);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('$recName removed from saved profiles'),
+                                      duration: const Duration(seconds: 1),
+                                    ),
+                                  );
+                                } else {
+                                  _bookmarkedRecommended.add(recName);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('$recName added to saved profiles!'),
+                                      duration: const Duration(seconds: 1),
+                                    ),
+                                  );
+                                }
+                              });
+                            },
+                            child: Icon(
+                              _bookmarkedRecommended.contains(rec['name'])
+                                  ? Icons.bookmark
+                                  : Icons.bookmark_border_outlined,
+                              size: 16,
+                              color: _bookmarkedRecommended.contains(rec['name'])
+                                  ? AppTheme.accentGold
+                                  : AppTheme.secondaryGrey,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 28),
