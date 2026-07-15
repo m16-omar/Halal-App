@@ -209,6 +209,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   // --- HERO CARD (Islamic Design + Quranic Quote) ---
   Widget _buildHeroCard() {
+    final List<Map<String, String>> slides = [
+      {
+        'header': 'Finding a spouse is',
+        'subheader': 'half of your Deen.',
+        'body': '“And among His signs is that He created for you from yourselves spouses that you may find tranquility in them.”',
+        'author': '– Qur\'an 30:21',
+      },
+      {
+        'header': 'Our Lord, grant us',
+        'subheader': 'comfort in our spouses',
+        'body': '“Our Lord, grant us from among our wives and offspring comfort to our eyes and make us an example for the righteous.”',
+        'author': '– Qur\'an 25:74',
+      },
+      {
+        'header': 'The most perfect',
+        'subheader': 'believer in faith',
+        'body': '“The most perfect believer in faith is the one who is best in moral character, and the best of you are those who are best to their wives.”',
+        'author': '– Jami\' at-Tirmidhi (1162)',
+      },
+      {
+        'header': 'They are a garment',
+        'subheader': 'for you & you for them',
+        'body': '“They are a garment for you and you are a garment for them.”',
+        'author': '– Qur\'an 2:187',
+      },
+    ];
+
     return Container(
       height: 180,
       width: double.infinity,
@@ -228,101 +255,122 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         borderRadius: BorderRadius.circular(18),
         child: Stack(
           children: [
-            // Arch silhouette Sunset Drawing on the right
-            Positioned(
-              right: 0,
-              top: 0,
-              bottom: 0,
-              width: 160,
-              child: CustomPaint(
-                painter: MosqueArchPainter(),
-              ),
-            ),
-            
-            // Quran book and lantern overlay
-            Positioned(
-              right: 12,
-              bottom: 8,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Icon(Icons.menu_book_outlined, size: 48, color: AppTheme.accentGold.withOpacity(0.85)),
-                  const SizedBox(width: 8),
-                  Icon(Icons.light_mode_outlined, size: 36, color: AppTheme.accentGold.withOpacity(0.7)),
-                ],
-              ),
-            ),
-
-            // Left Quote Content
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Finding a spouse is',
-                        style: GoogleFonts.outfit(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.softCream,
-                        ),
-                      ),
-                      Text(
-                        'half of your Deen.',
-                        style: GoogleFonts.amiri(
-                          fontSize: 22,
-                          fontStyle: FontStyle.italic,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.accentGold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    width: 200,
-                    child: Text(
-                      '“And among His signs is that He created for you from yourselves spouses that you may find tranquility in them.”',
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        color: AppTheme.softCream.withOpacity(0.8),
-                        height: 1.4,
+            PageView.builder(
+              itemCount: slides.length,
+              onPageChanged: (page) {
+                setState(() {
+                  _selectedHeroPage = page;
+                });
+              },
+              itemBuilder: (context, slideIndex) {
+                final slide = slides[slideIndex];
+                return Stack(
+                  children: [
+                    // Arch silhouette Sunset Drawing on the right
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      bottom: 0,
+                      width: 160,
+                      child: CustomPaint(
+                        painter: MosqueArchPainter(),
                       ),
                     ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '– Qur\'an 30:21',
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.accentGold,
-                        ),
+                    
+                    // Quran book and lantern overlay
+                    Positioned(
+                      right: 12,
+                      bottom: 8,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Icon(Icons.menu_book_outlined, size: 48, color: AppTheme.accentGold.withOpacity(0.85)),
+                          const SizedBox(width: 8),
+                          Icon(Icons.light_mode_outlined, size: 36, color: AppTheme.accentGold.withOpacity(0.7)),
+                        ],
                       ),
-                      // Carousel dots
-                      Row(
-                        children: List.generate(5, (index) {
-                          return Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 2),
-                            width: 6,
-                            height: 6,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: index == _selectedHeroPage
-                                  ? AppTheme.accentGold
-                                  : AppTheme.softCream.withOpacity(0.3),
+                    ),
+
+                    // Left Quote Content
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                slide['header']!,
+                                style: GoogleFonts.outfit(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.softCream,
+                                ),
+                              ),
+                              Text(
+                                slide['subheader']!,
+                                style: GoogleFonts.amiri(
+                                  fontSize: 22,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.accentGold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            width: 200,
+                            child: Text(
+                              slide['body']!,
+                              style: GoogleFonts.inter(
+                                fontSize: 10,
+                                color: AppTheme.softCream.withOpacity(0.8),
+                                height: 1.4,
+                              ),
                             ),
-                          );
-                        }),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                slide['author']!,
+                                style: GoogleFonts.inter(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.accentGold,
+                                ),
+                              ),
+                              // Spacer for dots
+                              const SizedBox(width: 10),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                );
+              },
+            ),
+            // Floating Indicator Dots overlay
+            Positioned(
+              right: 16,
+              bottom: 16,
+              child: Row(
+                children: List.generate(slides.length, (index) {
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 2),
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: index == _selectedHeroPage
+                          ? AppTheme.accentGold
+                          : AppTheme.softCream.withOpacity(0.3),
+                    ),
+                  );
+                }),
               ),
             ),
           ],
