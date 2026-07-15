@@ -124,7 +124,7 @@ class _DailyReminderScreenState extends State<DailyReminderScreen> {
             ),
             child: IconButton(
               icon: const Icon(Icons.settings_outlined, color: AppTheme.darkCharcoal, size: 18),
-              onPressed: () {},
+              onPressed: () => context.push('/settings'),
             ),
           ),
         ],

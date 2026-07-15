@@ -126,7 +126,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               // Settings Button
               IconButton(
                 icon: const Icon(Icons.settings_outlined, color: AppTheme.darkCharcoal, size: 26),
-                onPressed: () {},
+                onPressed: () => context.push('/settings'),
               ),
             ],
           ),

@@ -19,6 +19,7 @@ import '../../features/matchmaking/presentation/search_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/interest_requests/presentation/interest_requests_screen.dart';
 import '../../features/resources/presentation/daily_reminder_screen.dart';
+import '../../features/settings/presentation/settings_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
@@ -111,6 +112,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/daily-reminder',
       builder: (context, state) => const DailyReminderScreen(),
+    ),
+    GoRoute(
+      path: '/settings',
+      builder: (context, state) => const SettingsScreen(),
     ),
   ],
 );

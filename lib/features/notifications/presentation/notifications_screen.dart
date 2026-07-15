@@ -195,7 +195,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ),
             child: IconButton(
               icon: const Icon(Icons.settings, color: AppTheme.darkCharcoal, size: 18),
-              onPressed: () {},
+              onPressed: () => context.push('/settings'),
             ),
           ),
         ],
