@@ -892,74 +892,79 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   // --- DAILY ISLAMIC REMINDER ---
   Widget _buildDailyReminderCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE8F5E9), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.01),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Circular mosque outline badge
-          Container(
-            width: 56,
-            height: 56,
-            decoration: const BoxDecoration(
-              color: Color(0xFF042415),
-              shape: BoxShape.circle,
+    return GestureDetector(
+      onTap: () {
+        context.push('/daily-reminder');
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE8F5E9), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.01),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
-            child: const Icon(
-              Icons.mosque_outlined,
-              color: AppTheme.accentGold,
-              size: 28,
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Circular mosque outline badge
+            Container(
+              width: 56,
+              height: 56,
+              decoration: const BoxDecoration(
+                color: Color(0xFF042415),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.mosque_outlined,
+                color: AppTheme.accentGold,
+                size: 28,
+              ),
             ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Daily Islamic Reminder',
-                  style: GoogleFonts.outfit(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF1E5631),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Daily Islamic Reminder',
+                    style: GoogleFonts.outfit(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF1E5631),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Lower your gaze, guard your heart, and let Allah choose what is best for you.',
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    color: AppTheme.darkCharcoal,
-                    height: 1.4,
+                  const SizedBox(height: 4),
+                  Text(
+                    'Lower your gaze, guard your heart, and let Allah choose what is best for you.',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      color: AppTheme.darkCharcoal,
+                      height: 1.4,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '– Surah An-Nur (24:30)',
-                  style: GoogleFonts.inter(
-                    fontSize: 9,
-                    color: AppTheme.secondaryGrey,
-                    fontStyle: FontStyle.italic,
+                  const SizedBox(height: 2),
+                  Text(
+                    '– Surah An-Nur (24:30)',
+                    style: GoogleFonts.inter(
+                      fontSize: 9,
+                      color: AppTheme.secondaryGrey,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          const Icon(Icons.chevron_right, color: AppTheme.secondaryGrey, size: 24),
-        ],
+            const SizedBox(width: 8),
+            const Icon(Icons.chevron_right, color: AppTheme.secondaryGrey, size: 24),
+          ],
+        ),
       ),
     );
   }
