@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_theme.dart';
-import '../../../shared/components/custom_bottom_nav.dart';
 
 class MatchDetailScreen extends StatefulWidget {
   final Map<String, dynamic>? candidateData;
@@ -13,689 +12,638 @@ class MatchDetailScreen extends StatefulWidget {
   State<MatchDetailScreen> createState() => _MatchDetailScreenState();
 }
 
-class _MatchDetailScreenState extends State<MatchDetailScreen> {
+class _MatchDetailScreenState extends State<MatchDetailScreen> with SingleTickerProviderStateMixin {
   late Map<String, dynamic> candidate;
   bool _isLiked = false;
-  bool _isFavorite = false;
+  int _selectedTabIndex = 0;
+
+  final List<String> _tabs = [
+    'Profile',
+    'Gallery',
+    'Lifestyle',
+    'Family',
+    'Preferences',
+    'Compatibility'
+  ];
 
   @override
   void initState() {
     super.initState();
-    // Default to Aisha Usman if no dynamic data is passed
     candidate = widget.candidateData ?? {
       'name': 'Aisha Usman',
-      'age': '22',
-      'state': 'Ilorin, Kwara State',
-      'dob': '15 Safar 1446 AH',
-      'nationality': 'Nigerian',
-      'ethnicity': 'Hausa',
-      'language': 'Hausa, English',
-      'education': 'Undergraduate',
-      'educationDetail': 'Undergraduate – Biology',
-      'university': 'University of Ilorin',
-      'profession': 'Student',
-      'compatibility': '92%',
-      'quote': 'I believe in building a marriage that is based on faith, love, respect and good communication.',
-      'about': "I'm a simple, God-fearing and family-oriented person. I enjoy learning new things, reading and spending quality time with loved ones.",
-      'religiosity': 'Very Religious',
-      'diet': 'Halal',
-      'prayer': '5 times a day',
-      'eduImportance': 'Very Important',
-      'hijab': 'Always',
-      'children': 'Insha Allah',
-      'smoke': 'No',
-      'islamicValues': 'Very Important',
-      'familyType': 'Nuclear',
-      'fatherJob': 'Business',
-      'motherJob': 'Teacher',
-      'siblings': '3 (2 Sisters, 1 Brother)',
-      'status': 'Online',
-      'img': 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&auto=format&fit=crop&q=80',
+      'age': '37',
+      'state': 'Niger State',
+      'job': 'Teacher',
     };
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAF6),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0.5,
-        leading: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.grey[200]!),
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppTheme.darkCharcoal, size: 20),
-            padding: EdgeInsets.zero,
-            onPressed: () => context.pop(),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppTheme.darkCharcoal),
+          onPressed: () => context.pop(),
+        ),
+        title: Text(
+          'Seeker Profile',
+          style: GoogleFonts.outfit(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.primaryGreen,
           ),
         ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  candidate['name'] ?? 'Aisha Usman',
-                  style: GoogleFonts.outfit(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.darkCharcoal,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                const Icon(Icons.verified, size: 14, color: Color(0xFF10B981)),
-              ],
-            ),
-            const SizedBox(height: 2),
-            Row(
-              children: [
-                Text(
-                  '${candidate['age'] ?? '22'} years • ${candidate['state'] ?? 'Ilorin, Kwara State'}',
-                  style: GoogleFonts.inter(fontSize: 10, color: AppTheme.secondaryGrey),
-                ),
-                const SizedBox(width: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE8F5E9),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 4,
-                        height: 4,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF2E7D32),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 3),
-                      Text(
-                        candidate['status'] ?? 'Online',
-                        style: GoogleFonts.inter(
-                          fontSize: 6,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF2E7D32),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+        centerTitle: false,
         actions: [
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 8),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey[200]!),
+          IconButton(
+            icon: Icon(
+              _isLiked ? Icons.favorite : Icons.favorite_border,
+              color: _isLiked ? Colors.red : AppTheme.darkCharcoal,
             ),
-            child: IconButton(
-              icon: const Icon(Icons.ios_share, color: AppTheme.darkCharcoal, size: 18),
-              onPressed: () {},
-            ),
+            onPressed: () {
+              setState(() {
+                _isLiked = !_isLiked;
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(_isLiked ? 'Added to favorites!' : 'Removed from favorites!'),
+                  backgroundColor: AppTheme.primaryGreen,
+                  duration: const Duration(seconds: 1),
+                ),
+              );
+            },
           ),
-          const SizedBox(width: 8),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey[200]!),
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.more_horiz, color: AppTheme.darkCharcoal, size: 18),
-              onPressed: () {},
-            ),
+          IconButton(
+            icon: const Icon(Icons.more_vert, color: AppTheme.darkCharcoal),
+            onPressed: () => _showMoreOptionsBottomSheet(context),
           ),
         ],
       ),
       body: Column(
         children: [
+          // 1. Horizontal Tab Bar
+          _buildTabBar(),
+          const Divider(height: 1, color: Color(0xFFEEEEEE)),
+          // 2. Tab Views
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildProfileCoverSection(),
-                  const SizedBox(height: 16),
-                  _buildActionButtonsRow(),
-                  const SizedBox(height: 20),
-                  _buildAboutAndCompatibilityRow(),
-                  const SizedBox(height: 24),
-                  _buildBasicInformationSection(),
-                  const SizedBox(height: 24),
-                  _buildLifestyleValuesSection(),
-                  const SizedBox(height: 24),
-                  _buildFamilyBackgroundSection(),
-                  const SizedBox(height: 24),
-                  _buildPartnerPreferencesSection(),
-                  const SizedBox(height: 24),
-                  _buildMakeDuaBanner(),
+                  _buildTabContent(),
                   const SizedBox(height: 24),
                 ],
               ),
             ),
           ),
-          const CustomBottomNav(currentIndex: 1),
         ],
       ),
+      bottomNavigationBar: _buildStickyBottomBar(),
     );
   }
 
-  // 1. PROFILE COVER SECTION (Photo + Quote/Details side-by-side)
-  Widget _buildProfileCoverSection() {
-    String imageLink = candidate['img'] ?? _aishaPhotoLink();
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Left column - Big Photo
-        Stack(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Image.network(
-                imageLink,
-                width: 155,
-                height: 215,
-                fit: BoxFit.cover,
+  // --- HORIZONTAL TAB BAR ---
+  Widget _buildTabBar() {
+    return SizedBox(
+      height: 48,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: _tabs.length,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        itemBuilder: (context, index) {
+          final isSelected = index == _selectedTabIndex;
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                _selectedTabIndex = index;
+              });
+            },
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 10),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                border: isSelected
+                    ? const Border(
+                        bottom: BorderSide(color: AppTheme.primaryGreen, width: 2),
+                      )
+                    : null,
               ),
-            ),
-            // Photos Count Badge
-            Positioned(
-              left: 10,
-              bottom: 10,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(8),
-                ),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 2),
                 child: Row(
                   children: [
-                    const Icon(Icons.photo_library_outlined, color: Colors.white, size: 10),
-                    const SizedBox(width: 4),
+                    _getTabIcon(index, isSelected),
+                    const SizedBox(width: 6),
                     Text(
-                      '5 Photos',
-                      style: GoogleFonts.inter(fontSize: 8, color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(width: 12),
-        // Right column - Quote & Key Badges & Brief Detail Items
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Quote Box
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[200]!),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.format_quote, color: AppTheme.primaryGreen, size: 20),
-                    const SizedBox(height: 4),
-                    Text(
-                      candidate['quote'] ?? 'I believe in building a marriage that is based on faith, love, respect and good communication.',
+                      _tabs[index],
                       style: GoogleFonts.inter(
-                        fontSize: 10,
-                        color: AppTheme.darkCharcoal,
-                        fontStyle: FontStyle.italic,
-                        height: 1.3,
+                        fontSize: 12,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                        color: isSelected ? AppTheme.primaryGreen : Colors.grey[600],
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 10),
-              // Pill badges
-              Wrap(
-                spacing: 4,
-                runSpacing: 4,
-                children: [
-                  _buildStatusPill('Practicing Muslim', const Color(0xFFE8F5E9), const Color(0xFF2E7D32), Icons.circle, iconSize: 4),
-                  _buildStatusPill('Sunni', const Color(0xFFF3E8FF), const Color(0xFF6B21A8), Icons.nightlight_round),
-                  _buildStatusPill('Hijab', const Color(0xFFFFE4E6), const Color(0xFF9F1239), Icons.face),
-                ],
-              ),
-              const SizedBox(height: 12),
-              // Major highlights
-              _buildBriefRow(Icons.school_outlined, candidate['educationDetail'] ?? 'Undergraduate – Biology', subtitle: candidate['university'] ?? 'University of Ilorin'),
-              const SizedBox(height: 8),
-              _buildBriefRow(Icons.straighten, "5'4\" • Average Build"),
-              const SizedBox(height: 8),
-              _buildBriefRow(Icons.favorite_border, 'Never Married'),
-            ],
-          ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _getTabIcon(int index, bool isSelected) {
+    final color = isSelected ? AppTheme.primaryGreen : Colors.grey[500];
+    const size = 16.0;
+    switch (index) {
+      case 0:
+        return Icon(Icons.person_outline, color: color, size: size);
+      case 1:
+        return Icon(Icons.image_outlined, color: color, size: size);
+      case 2:
+        return Icon(Icons.star_outline, color: color, size: size);
+      case 3:
+        return Icon(Icons.roofing_outlined, color: color, size: size);
+      case 4:
+        return Icon(Icons.tune_outlined, color: color, size: size);
+      case 5:
+        return Icon(Icons.handshake_outlined, color: color, size: size);
+      default:
+        return Icon(Icons.info_outline, color: color, size: size);
+    }
+  }
+
+  // --- TAB ROUTING CONTENT ---
+  Widget _buildTabContent() {
+    switch (_selectedTabIndex) {
+      case 0:
+        return _buildProfileTabContent();
+      case 1:
+        return _buildGalleryTabContent();
+      default:
+        return _buildProfileTabContent();
+    }
+  }
+
+  // --- TAB 1: PROFILE TAB CONTENT ---
+  Widget _buildProfileTabContent() {
+    return Column(
+      children: [
+        // Card 1: Verified & Trusted
+        _buildVerifiedCard(),
+        const SizedBox(height: 16),
+
+        // Card 2: Personality & Interests Side-by-side
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: _buildPersonalityCard()),
+            const SizedBox(width: 12),
+            Expanded(child: _buildInterestsCard()),
+          ],
         ),
+        const SizedBox(height: 16),
+
+        // Card 3: Family Background & Marriage Readiness
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: _buildFamilyBackgroundCard()),
+            const SizedBox(width: 12),
+            Expanded(child: _buildMarriageReadinessCard()),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Card 4: About My Ideal Spouse
+        _buildAboutIdealSpouseCard(),
+        const SizedBox(height: 16),
+
+        // Card 5: Preferred Location (With Map of Nigeria)
+        _buildPreferredLocationCard(),
+        const SizedBox(height: 16),
+
+        // Card 6: Surah Al-Furqan Quranic Quote Box
+        _buildQuranQuoteCard(),
+        const SizedBox(height: 16),
+
+        // Card 7: Safety Tip
+        _buildSafetyTipCard(),
       ],
     );
   }
 
-  Widget _buildStatusPill(String text, Color bg, Color textCol, IconData icon, {double iconSize = 10}) {
+  // --- 1. VERIFIED CARD ---
+  Widget _buildVerifiedCard() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(6),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[200]!),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: iconSize, color: textCol),
-          const SizedBox(width: 4),
-          Text(
-            text,
-            style: GoogleFonts.inter(fontSize: 8, color: textCol, fontWeight: FontWeight.bold),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: const BoxDecoration(
+              color: Color(0xFFE8F5E9),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.verified_user, color: Color(0xFF2E7D32), size: 24),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBriefRow(IconData icon, String title, {String? subtitle}) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 14, color: AppTheme.secondaryGrey),
-        const SizedBox(width: 6),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
-              ),
-              if (subtitle != null)
-                Text(
-                  subtitle,
-                  style: GoogleFonts.inter(fontSize: 8, color: AppTheme.secondaryGrey),
-                ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // 2. ACTION BUTTONS ROW
-  Widget _buildActionButtonsRow() {
-    return Row(
-      children: [
-        // Like Button
-        Expanded(
-          flex: 2,
-          child: ElevatedButton.icon(
-            onPressed: () {
-              setState(() => _isLiked = !_isLiked);
-            },
-            icon: Icon(
-              _isLiked ? Icons.favorite : Icons.favorite_border,
-              size: 14,
-              color: Colors.white,
-            ),
-            label: Text(
-              _isLiked ? 'Liked' : 'Like',
-              style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF042415),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              elevation: 0,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        // Send Message
-        Expanded(
-          flex: 2,
-          child: OutlinedButton.icon(
-            onPressed: () {
-              context.push('/direct-chat', extra: candidate);
-            },
-            icon: const Icon(Icons.chat_bubble_outline, size: 14, color: Color(0xFF042415)),
-            label: Text(
-              'Send Message',
-              style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF042415)),
-            ),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Color(0xFF042415)),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        // Add to Favorites
-        Expanded(
-          flex: 2,
-          child: OutlinedButton.icon(
-            onPressed: () {
-              setState(() => _isFavorite = !_isFavorite);
-            },
-            icon: Icon(
-              _isFavorite ? Icons.bookmark : Icons.bookmark_border,
-              size: 14,
-              color: AppTheme.secondaryGrey,
-            ),
-            label: Text(
-              _isFavorite ? 'Favorited' : 'Add to Favorites',
-              style: GoogleFonts.inter(fontSize: 8, fontWeight: FontWeight.bold, color: AppTheme.secondaryGrey),
-            ),
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: Colors.grey[300]!),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        // More Button
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey[300]!),
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.more_horiz, size: 16, color: AppTheme.secondaryGrey),
-            onPressed: () {},
-          ),
-        ),
-      ],
-    );
-  }
-
-  // 3. ABOUT HER & COMPATIBILITY ROW
-  Widget _buildAboutAndCompatibilityRow() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // About Her Section
-        Expanded(
-          flex: 3,
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.grey[200]!),
-            ),
+          const SizedBox(width: 14),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'About Her',
-                  style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+                  'Verified & Trusted',
+                  style: GoogleFonts.outfit(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.darkCharcoal,
+                  ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 Text(
-                  candidate['about'] ?? "I'm a simple, God-fearing and family-oriented person. I enjoy learning new things, reading and spending quality time with loved ones.",
-                  style: GoogleFonts.inter(fontSize: 10, color: AppTheme.secondaryGrey, height: 1.4),
-                ),
-                const SizedBox(height: 10),
-                GestureDetector(
-                  onTap: () {},
-                  child: Row(
-                    children: [
-                      Text(
-                        'Read More',
-                        style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.bold, color: AppTheme.primaryGreen),
-                      ),
-                      const SizedBox(width: 2),
-                      const Icon(Icons.keyboard_arrow_down, size: 12, color: AppTheme.primaryGreen),
-                    ],
+                  'This profile has been verified to ensure a safe and trusted matchmaking experience.',
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    color: Colors.grey[600],
+                    height: 1.4,
                   ),
                 ),
               ],
             ),
           ),
-        ),
-        const SizedBox(width: 12),
-        // Compatibility Score Widget
-        Expanded(
-          flex: 2,
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.grey[200]!),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Compatibility Score',
-                      style: GoogleFonts.inter(fontSize: 8, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
-                    ),
-                    const SizedBox(width: 2),
-                    const Icon(Icons.info_outline, size: 10, color: AppTheme.secondaryGrey),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: 55,
-                  height: 55,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      const CircularProgressIndicator(
-                        value: 0.92,
-                        strokeWidth: 4,
-                        backgroundColor: Color(0xFFECEFF1),
-                        color: Color(0xFF10B981),
-                      ),
-                      Text(
-                        candidate['compatibility'] ?? '92%',
-                        style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF10B981)),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.check_circle_outline, size: 10, color: Color(0xFF10B981)),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Excellent Match',
-                      style: GoogleFonts.inter(fontSize: 8, fontWeight: FontWeight.bold, color: const Color(0xFF10B981)),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                GestureDetector(
-                  onTap: () {},
-                  child: Text(
-                    'View Details >',
-                    style: GoogleFonts.inter(fontSize: 8, fontWeight: FontWeight.bold, color: AppTheme.primaryGreen),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // 4. BASIC INFORMATION SECTION
-  Widget _buildBasicInformationSection() {
-    final List<Map<String, dynamic>> basicInfo = [
-      {'label': 'Age', 'val': '${candidate['age'] ?? '22'} years', 'icon': Icons.person_outline, 'color': const Color(0xFFFEE2E2), 'iconColor': const Color(0xFFEF4444)},
-      {'label': 'Date of Birth', 'val': candidate['dob'] ?? '15 Safar 1446 AH', 'icon': Icons.calendar_today_outlined, 'color': const Color(0xFFFEF3C7), 'iconColor': const Color(0xFFF59E0B)},
-      {'label': 'Location', 'val': candidate['state'] ?? 'Ilorin, Kwara', 'icon': Icons.location_on_outlined, 'color': const Color(0xFFD1FAE5), 'iconColor': const Color(0xFF10B981)},
-      {'label': 'Nationality', 'val': candidate['nationality'] ?? 'Nigerian', 'icon': Icons.public, 'color': const Color(0xFFDBEAFE), 'iconColor': const Color(0xFF3B82F6)},
-      {'label': 'Ethnicity', 'val': candidate['ethnicity'] ?? 'Hausa', 'icon': Icons.star_border, 'color': const Color(0xFFF3E8FF), 'iconColor': const Color(0xFFA855F7)},
-      {'label': 'Language', 'val': candidate['language'] ?? 'Hausa, English', 'icon': Icons.translate, 'color': const Color(0xFFFFE4E6), 'iconColor': const Color(0xFFF43F5E)},
-      {'label': 'Education', 'val': candidate['education'] ?? 'Undergraduate', 'icon': Icons.school_outlined, 'color': const Color(0xFFE0F2F1), 'iconColor': const Color(0xFF009688)},
-      {'label': 'Profession', 'val': candidate['profession'] ?? 'Student', 'icon': Icons.work_outline, 'color': const Color(0xFFECEFF1), 'iconColor': const Color(0xFF607D8B)},
-    ];
-
-    return _buildSectionContainer(
-      title: 'Basic Information',
-      child: _buildInfoGrid(basicInfo),
-    );
-  }
-
-  // 5. LIFESTYLE & VALUES SECTION
-  Widget _buildLifestyleValuesSection() {
-    final List<Map<String, dynamic>> lifestyleInfo = [
-      {'label': 'Religiosity', 'val': candidate['religiosity'] ?? 'Very Religious', 'icon': Icons.favorite_outline, 'color': const Color(0xFFFFEAEA), 'iconColor': const Color(0xFFE11D48)},
-      {'label': 'Diet', 'val': candidate['diet'] ?? 'Halal', 'icon': Icons.check_circle_outline, 'color': const Color(0xFFE8F5E9), 'iconColor': const Color(0xFF15803D)},
-      {'label': 'Prayer', 'val': candidate['prayer'] ?? '5 times a day', 'icon': Icons.access_time, 'color': const Color(0xFFFFF7ED), 'iconColor': const Color(0xFFC2410C)},
-      {'label': 'Education Importance', 'val': candidate['eduImportance'] ?? 'Very Important', 'icon': Icons.school_outlined, 'color': const Color(0xFFEFF6FF), 'iconColor': const Color(0xFF1D4ED8)},
-      {'label': 'Hijab', 'val': candidate['hijab'] ?? 'Always', 'icon': Icons.face_retouching_natural, 'color': const Color(0xFFFAF5FF), 'iconColor': const Color(0xFF7E22CE)},
-      {'label': 'Children', 'val': candidate['children'] ?? 'Insha Allah', 'icon': Icons.people_outline, 'color': const Color(0xFFECFDF5), 'iconColor': const Color(0xFF047857)},
-      {'label': 'Smoke', 'val': candidate['smoke'] ?? 'No', 'icon': Icons.smoke_free, 'color': const Color(0xFFFFF1F2), 'iconColor': const Color(0xFFBE123C)},
-      {'label': 'Islamic Values', 'val': candidate['islamicValues'] ?? 'Very Important', 'icon': Icons.shield_outlined, 'color': const Color(0xFFF8FAFC), 'iconColor': const Color(0xFF475569)},
-    ];
-
-    return _buildSectionContainer(
-      title: 'Lifestyle & Values',
-      child: _buildInfoGrid(lifestyleInfo),
-    );
-  }
-
-  // 6. FAMILY BACKGROUND SECTION
-  Widget _buildFamilyBackgroundSection() {
-    final List<Map<String, dynamic>> familyInfo = [
-      {'label': 'Family Type', 'val': candidate['familyType'] ?? 'Nuclear', 'icon': Icons.group_outlined, 'color': const Color(0xFFEFF6FF), 'iconColor': const Color(0xFF2563EB)},
-      {'label': "Father's Occupation", 'val': candidate['fatherJob'] ?? 'Business', 'icon': Icons.work_outline, 'color': const Color(0xFFECFDF5), 'iconColor': const Color(0xFF059669)},
-      {'label': "Mother's Occupation", 'val': candidate['motherJob'] ?? 'Teacher', 'icon': Icons.badge_outlined, 'color': const Color(0xFFFDF2F8), 'iconColor': const Color(0xFFDB2777)},
-      {'label': 'Siblings', 'val': candidate['siblings'] ?? '3 (2 Sisters, 1 Brother)', 'icon': Icons.nature_people_outlined, 'color': const Color(0xFFFEF3C7), 'iconColor': const Color(0xFFD97706)},
-    ];
-
-    return _buildSectionContainer(
-      title: 'About Her Family',
-      child: _buildInfoGrid(familyInfo),
-    );
-  }
-
-  // 7. PARTNER PREFERENCES SECTION
-  Widget _buildPartnerPreferencesSection() {
-    final List<Map<String, dynamic>> prefs = [
-      {'label': 'Age Range', 'val': '24 - 30', 'icon': Icons.swap_horiz},
-      {'label': 'Religiosity', 'val': 'Religious', 'icon': Icons.favorite_border},
-      {'label': 'Education', 'val': 'Undergraduate or above', 'icon': Icons.school_outlined},
-      {'label': 'Location', 'val': 'Open to relocate', 'icon': Icons.map_outlined},
-      {'label': 'Marital Status', 'val': 'Never Married', 'icon': Icons.favorite_outline},
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          const SizedBox(width: 8),
+          // Verification Checklist
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _buildCheckItem('Identity Verified'),
+              _buildCheckItem('Phone Verified'),
+              _buildCheckItem('NIN Verified'),
+              _buildCheckItem('Profile Reviewed'),
+              _buildCheckItem('Wali Verified'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCheckItem(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.check_circle, color: Color(0xFF2E7D32), size: 12),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: GoogleFonts.inter(fontSize: 9, color: Colors.grey[700], fontWeight: FontWeight.w500),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- 2. PERSONALITY CARD ---
+  Widget _buildPersonalityCard() {
+    final tags = ['Honest', 'Introverted', 'Clean', 'Patient', 'Calm', 'Respectful', 'God-fearing', 'Family-oriented'];
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.emoji_emotions_outlined, color: AppTheme.primaryGreen, size: 18),
+              const SizedBox(width: 8),
               Text(
-                "What She's Looking For",
-                style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
-              ),
-              Text(
-                'View All',
-                style: GoogleFonts.inter(fontSize: 11, color: AppTheme.primaryGreen, fontWeight: FontWeight.w600),
+                'Personality',
+                style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
               ),
             ],
           ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 65,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: prefs.length,
-            itemBuilder: (context, index) {
-              final pref = prefs[index];
-              return Container(
-                width: 140,
-                margin: const EdgeInsets.only(right: 10),
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[200]!),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: tags.map((t) => _buildTagChip(t)).toList(),
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () {},
+            child: Row(
+              children: [
+                Text('View More', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.primaryGreen)),
+                const SizedBox(width: 2),
+                const Icon(Icons.chevron_right, size: 12, color: AppTheme.primaryGreen),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- 3. INTERESTS CARD ---
+  Widget _buildInterestsCard() {
+    final tags = ['Reading', 'Qur\'an', 'Islamic Lectures', 'Teaching', 'Cooking', 'Travel', 'Gardening', 'Nasheed'];
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.favorite_border, color: AppTheme.primaryGreen, size: 18),
+              const SizedBox(width: 8),
+              Text(
+                'Interests',
+                style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: tags.map((t) => _buildTagChip(t)).toList(),
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () {},
+            child: Row(
+              children: [
+                Text('View More', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.primaryGreen)),
+                const SizedBox(width: 2),
+                const Icon(Icons.chevron_right, size: 12, color: AppTheme.primaryGreen),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTagChip(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9FAF6),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: Colors.grey[100]!),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.inter(fontSize: 9, color: Colors.grey[700], fontWeight: FontWeight.w500),
+      ),
+    );
+  }
+
+  // --- 4. FAMILY BACKGROUND CARD ---
+  Widget _buildFamilyBackgroundCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.people_outline, color: AppTheme.primaryGreen, size: 18),
+              const SizedBox(width: 8),
+              Text(
+                'Family Background',
+                style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildDetailRow('Family Type', 'Nuclear Family'),
+          _buildDetailRow('Parents', 'Both Alive'),
+          _buildDetailRow('Siblings', '3 (2 Sisters, 1 Bro)'),
+          _buildDetailRow('Birth Order', '2nd'),
+          _buildDetailRow('Guardian/Wali', 'Available'),
+        ],
+      ),
+    );
+  }
+
+  // --- 5. MARRIAGE READINESS CARD ---
+  Widget _buildMarriageReadinessCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.handshake_outlined, color: AppTheme.primaryGreen, size: 18),
+              const SizedBox(width: 8),
+              Text(
+                'Marriage Readiness',
+                style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildDetailRow('Ready to Marry', 'Immediately'),
+          _buildDetailRow('Willing to Reloc.', 'Yes'),
+          _buildDetailRow('Open to LDR', 'Yes'),
+          _buildDetailRow('Family Involv.', 'Yes'),
+          _buildDetailRow('Visa/Passport', 'Available'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String val) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: GoogleFonts.inter(fontSize: 9, color: Colors.grey[500])),
+          Text(val, style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal)),
+        ],
+      ),
+    );
+  }
+
+  // --- 6. ABOUT MY IDEAL SPOUSE CARD ---
+  Widget _buildAboutIdealSpouseCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF1F5F9),
+                  shape: BoxShape.circle,
                 ),
-                child: Row(
+                child: const Icon(Icons.person, color: AppTheme.secondaryGrey, size: 16),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                'About My Ideal Spouse',
+                style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'I seek a trustworthy, practicing Muslim who observes his prayers consistently and earns a halal livelihood. He should be responsible, caring toward his family, and committed to building a peaceful home based on Islamic values, mutual respect, and compassion.',
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              color: Colors.grey[700],
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- 7. PREFERRED LOCATION CARD ---
+  Widget _buildPreferredLocationCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: const BoxDecoration(
-                        color: Color(0xFFF9FAF6),
+                        color: Color(0xFFF1F5F9),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(pref['icon'], size: 14, color: AppTheme.primaryGreen),
+                      child: const Icon(Icons.location_on, color: AppTheme.secondaryGrey, size: 16),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            pref['label'],
-                            style: GoogleFonts.inter(fontSize: 7, color: AppTheme.secondaryGrey),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            pref['val'],
-                            style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Preferred Location',
+                      style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
                     ),
                   ],
                 ),
-              );
-            },
+                const SizedBox(height: 12),
+                Text(
+                  'Abuja, Suleja, Kaduna, or Nasarawa.',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: Colors.grey[700],
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+          const SizedBox(width: 12),
+          // Stylized mini map image
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              color: const Color(0xFFF0FDF4),
+              height: 80,
+              width: 100,
+              child: Stack(
+                children: [
+                  Center(
+                    child: Icon(Icons.map_outlined, color: AppTheme.primaryGreen.withOpacity(0.15), size: 64),
+                  ),
+                  const Positioned(
+                    top: 24,
+                    left: 44,
+                    child: Icon(Icons.location_on, color: AppTheme.primaryGreen, size: 14),
+                  ),
+                  const Positioned(
+                    top: 48,
+                    left: 28,
+                    child: Icon(Icons.location_on, color: Color(0xFFD4AF37), size: 12),
+                  ),
+                  const Positioned(
+                    top: 40,
+                    left: 60,
+                    child: Icon(Icons.location_on, color: AppTheme.primaryGreen, size: 12),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  // 8. MAKE DU'A FOOTER BANNER
-  Widget _buildMakeDuaBanner() {
+  // --- 8. QURANIC QUOTE CARD ---
+  Widget _buildQuranQuoteCard() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xFFF3E8FF),
+        color: const Color(0xFFFAFBF7),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFD8B4FE).withOpacity(0.4)),
+        border: Border.all(color: Colors.grey[100]!),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-            child: const Icon(Icons.volunteer_activism_outlined, color: Color(0xFF7C3AED), size: 20),
+            decoration: const BoxDecoration(
+              color: Color(0xFFE8F5E9),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.format_quote, color: AppTheme.primaryGreen, size: 16),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -703,35 +651,34 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Make Du'a",
-                  style: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.bold, color: const Color(0xFF5B21B6)),
+                  'رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا',
+                  style: GoogleFonts.scheherazadeNew(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primaryGreen,
+                    height: 1.8,
+                  ),
+                  textDirection: TextDirection.rtl,
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 8),
                 Text(
-                  'Ask Allah to guide you to what is best for you in this search.',
-                  style: GoogleFonts.inter(fontSize: 9, color: const Color(0xFF7C3AED), height: 1.3),
+                  '“Our Lord! Grant us from among our spouses and offspring comfort to our eyes and make us leaders for the righteous.”',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    color: Colors.grey[800],
+                    height: 1.5,
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF7C3AED),
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              minimumSize: Size.zero,
-            ),
-            child: Row(
-              children: [
+                const SizedBox(height: 6),
                 Text(
-                  "Make Du'a",
-                  style: GoogleFonts.inter(fontSize: 8, fontWeight: FontWeight.bold),
+                  '– Surah Al-Furqan (25:74)',
+                  style: GoogleFonts.inter(
+                    fontSize: 9,
+                    color: AppTheme.secondaryGrey,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                const SizedBox(width: 2),
-                const Icon(Icons.arrow_forward_ios, size: 8, color: Colors.white),
               ],
             ),
           ),
@@ -740,95 +687,169 @@ class _MatchDetailScreenState extends State<MatchDetailScreen> {
     );
   }
 
-  // --- REUSABLE LAYOUT HELPERS ---
-  Widget _buildSectionContainer({required String title, required Widget child}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
-              ),
-              Text(
-                'View All',
-                style: GoogleFonts.inter(fontSize: 11, color: AppTheme.primaryGreen, fontWeight: FontWeight.w600),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey[200]!),
-          ),
-          child: child,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildInfoGrid(List<Map<String, dynamic>> items) {
-    return Column(
-      children: [
-        for (int i = 0; i < items.length; i += 2)
-          Padding(
-            padding: EdgeInsets.only(bottom: i + 2 < items.length ? 12.0 : 0.0),
-            child: Row(
-              children: [
-                Expanded(child: _buildInfoTile(items[i])),
-                if (i + 1 < items.length) ...[
-                  const SizedBox(width: 12),
-                  Expanded(child: _buildInfoTile(items[i + 1])),
-                ],
-              ],
+  // --- 9. SAFETY TIP CARD ---
+  Widget _buildSafetyTipCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9FAF6),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[100]!),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.shield_outlined, color: AppTheme.primaryGreen, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Safety Tip: Always keep your conversations within the platform. Never send money or share personal contact details until you are comfortable.',
+              style: GoogleFonts.inter(fontSize: 10, color: Colors.grey[700], height: 1.4),
             ),
           ),
-      ],
+          const Icon(Icons.chevron_right, color: Colors.grey, size: 16),
+        ],
+      ),
     );
   }
 
-  Widget _buildInfoTile(Map<String, dynamic> item) {
-    return Row(
-      children: [
-        Container(
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
-            color: item['color'],
-            shape: BoxShape.circle,
+  // --- GALLERY TAB CONTENT ---
+  Widget _buildGalleryTabContent() {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        childAspectRatio: 0.8,
+      ),
+      itemCount: 4,
+      itemBuilder: (context, index) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.network(
+            'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80',
+            fit: BoxFit.cover,
           ),
-          child: Icon(item['icon'], size: 14, color: item['iconColor']),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                item['label'],
-                style: GoogleFonts.inter(fontSize: 7, color: AppTheme.secondaryGrey),
+        );
+      },
+    );
+  }
+
+  // --- STICKY BOTTOM ACTION BAR ---
+  Widget _buildStickyBottomBar() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Row(
+          children: [
+            Expanded(
+              flex: 5,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Interest request sent!'),
+                      backgroundColor: AppTheme.primaryGreen,
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.favorite, size: 18),
+                label: Text(
+                  'Express Interest',
+                  style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryGreen,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               ),
-              const SizedBox(height: 1),
-              Text(
-                item['val'],
-                style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 5,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  context.push('/direct-chat', extra: candidate);
+                },
+                icon: const Icon(Icons.chat_bubble_outline, size: 18),
+                label: Text(
+                  'Request Supervised Chat',
+                  style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 11),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppTheme.primaryGreen,
+                  side: const BorderSide(color: AppTheme.primaryGreen),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // --- BOTTOM SHEET OPTIONS ---
+  void _showMoreOptionsBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.report_problem_outlined, color: Colors.red),
+                title: Text('Report Seeker', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Report submitted to admin.'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.block, color: AppTheme.darkCharcoal),
+                title: Text('Block Seeker', style: GoogleFonts.inter(fontWeight: FontWeight.w600)),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Seeker blocked.'),
+                      backgroundColor: AppTheme.darkCharcoal,
+                    ),
+                  );
+                },
               ),
             ],
           ),
-        ),
-      ],
+        );
+      },
     );
   }
-
-  String _aishaPhotoLink() => 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&auto=format&fit=crop&q=80';
 }
