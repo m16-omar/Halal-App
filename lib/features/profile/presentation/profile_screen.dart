@@ -18,6 +18,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   final String _aishaPhoto = 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&auto=format&fit=crop&q=80';
   final String _yusufPhoto = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&auto=format&fit=crop&q=80';
+  String _selectedLanguage = 'English';
 
   @override
   Widget build(BuildContext context) {
@@ -732,7 +733,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
             const SizedBox(width: 8),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () => _showPremiumUpgradeBottomSheet(context),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF7C3AED),
                 foregroundColor: Colors.white,
@@ -776,13 +777,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
             child: Column(
               children: [
-                _buildPreferenceTile(Icons.notifications_none_outlined, 'Notification Settings', onTap: () {}),
+                _buildPreferenceTile(Icons.notifications_none_outlined, 'Notification Settings', onTap: () => context.push('/settings')),
                 const Divider(height: 1, indent: 48),
-                _buildPreferenceTile(Icons.lock_outline, 'Privacy & Security', onTap: () {}),
+                _buildPreferenceTile(Icons.lock_outline, 'Privacy & Security', onTap: () => context.push('/settings')),
                 const Divider(height: 1, indent: 48),
-                _buildPreferenceTile(Icons.language, 'Language', trailing: 'English', onTap: () {}),
+                _buildPreferenceTile(Icons.language, 'Language', trailing: _selectedLanguage, onTap: () => _showLanguageBottomSheet(context)),
                 const Divider(height: 1, indent: 48),
-                _buildPreferenceTile(Icons.help_outline, 'Help & Support', onTap: () {}),
+                _buildPreferenceTile(Icons.help_outline, 'Help & Support', onTap: () => _showHelpSupportBottomSheet(context)),
                 const Divider(height: 1, indent: 48),
                 _buildPreferenceTile(Icons.exit_to_app, 'Log Out', isDestructive: true, onTap: () async {
                   await ref.read(authProvider.notifier).logout();
@@ -821,6 +822,363 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       dense: true,
+    );
+  }
+
+  void _showPremiumUpgradeBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F3FF),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: const Color(0xFFDDD6FE)),
+                    ),
+                    child: const Icon(Icons.workspace_premium_outlined, color: Color(0xFF7C3AED), size: 28),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Nupe Halal Gold',
+                        style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: const Color(0xFF5B21B6)),
+                      ),
+                      Text(
+                        'Unlock premium matchmaking benefits',
+                        style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              _buildUpgradeBenefitRow(Icons.check_circle_outline, 'Unlimited Interest Requests (Connect instantly)'),
+              _buildUpgradeBenefitRow(Icons.check_circle_outline, 'Unlock direct Chat with potential matches'),
+              _buildUpgradeBenefitRow(Icons.check_circle_outline, 'Imam supervised verification prioritization'),
+              _buildUpgradeBenefitRow(Icons.check_circle_outline, 'See who viewed or favorited your card'),
+              const SizedBox(height: 24),
+              Text(
+                'Choose a Subscription Plan',
+                style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+              ),
+              const SizedBox(height: 12),
+              _buildPlanOption('1 Month', '₦5,000', 'Billed monthly'),
+              const SizedBox(height: 8),
+              _buildPlanOption('6 Months', '₦3,500/mo', 'Save 30% — ₦21,000 total', isPopular: true),
+              const SizedBox(height: 8),
+              _buildPlanOption('12 Months', '₦2,500/mo', 'Save 50% — ₦30,000 total'),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _showUpgradeSuccessDialog(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF7C3AED),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Text(
+                    'Upgrade Now',
+                    style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildUpgradeBenefitRow(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: const Color(0xFF7C3AED), size: 16),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.inter(fontSize: 11, color: AppTheme.darkCharcoal, fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlanOption(String duration, String price, String desc, {bool isPopular = false}) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: isPopular ? const Color(0xFFF5F3FF) : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isPopular ? const Color(0xFF7C3AED) : Colors.grey[200]!,
+          width: isPopular ? 1.5 : 1,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    duration,
+                    style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+                  ),
+                  if (isPopular) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF7C3AED),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        'POPULAR',
+                        style: GoogleFonts.inter(fontSize: 8, color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 2),
+              Text(
+                desc,
+                style: GoogleFonts.inter(fontSize: 9, color: Colors.grey[500]),
+              ),
+            ],
+          ),
+          Text(
+            price,
+            style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: const Color(0xFF7C3AED)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showUpgradeSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFECFDF5),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.check_circle, color: Color(0xFF10B981), size: 50),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Congratulations!',
+                style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'You are now a Nupe Halal Connect Gold member. Enjoy full access to all premium features!',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[600], height: 1.5),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryGreen,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: const Text('Jazakumullahu Khairan'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showLanguageBottomSheet(BuildContext context) {
+    final List<String> languages = ['English', 'العربية (Arabic)', 'Hausa', 'Yoruba'];
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Select App Language',
+                style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+              ),
+              const SizedBox(height: 12),
+              ...languages.map((lang) {
+                bool isSelected = _selectedLanguage == lang || 
+                  (_selectedLanguage == 'English' && lang == 'English');
+                return ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    lang,
+                    style: GoogleFonts.inter(
+                      fontSize: 12, 
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: isSelected ? AppTheme.primaryGreen : AppTheme.darkCharcoal
+                    ),
+                  ),
+                  trailing: isSelected 
+                    ? const Icon(Icons.check, color: AppTheme.primaryGreen, size: 18) 
+                    : null,
+                  onTap: () {
+                    setState(() {
+                      _selectedLanguage = lang;
+                    });
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Language changed to $lang'),
+                        backgroundColor: AppTheme.primaryGreen,
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                );
+              }),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showHelpSupportBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Help & Support',
+                style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+              ),
+              const SizedBox(height: 12),
+              ListTile(
+                leading: const Icon(Icons.question_answer_outlined, color: AppTheme.primaryGreen, size: 20),
+                title: Text('Frequently Asked Questions (FAQs)', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold)),
+                trailing: const Icon(Icons.chevron_right, size: 16),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.push('/settings'); // Lead to settings help section
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.chat_outlined, color: AppTheme.primaryGreen, size: 20),
+                title: Text('Chat with Support Admin', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold)),
+                trailing: const Icon(Icons.chevron_right, size: 16),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Connecting to Support via WhatsApp (07045859388)...'),
+                      backgroundColor: AppTheme.primaryGreen,
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.mail_outline, color: AppTheme.primaryGreen, size: 20),
+                title: Text('Email Support Team', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold)),
+                trailing: const Icon(Icons.chevron_right, size: 16),
+                onTap: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Support Email: support@nupehalalconnect.com'),
+                      backgroundColor: AppTheme.primaryGreen,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
