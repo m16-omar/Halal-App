@@ -110,6 +110,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   void _markAllAsRead() {
     setState(() {
+      for (var n in _newNotifications) {
+        n['isUnread'] = false;
+      }
       for (var n in _earlierNotifications) {
         n['isUnread'] = false;
       }
