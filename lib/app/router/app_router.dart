@@ -20,6 +20,7 @@ import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/interest_requests/presentation/interest_requests_screen.dart';
 import '../../features/resources/presentation/daily_reminder_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
+import '../../features/profile/presentation/premium_upgrade_screen.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
@@ -116,6 +117,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/settings',
       builder: (context, state) => const SettingsScreen(),
+    ),
+    GoRoute(
+      path: '/premium-upgrade',
+      builder: (context, state) => const PremiumUpgradeScreen(),
     ),
   ],
 );

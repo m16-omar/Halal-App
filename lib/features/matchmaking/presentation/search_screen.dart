@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../shared/components/custom_bottom_nav.dart';
+import '../../authentication/presentation/auth_provider.dart';
 
-class SearchScreen extends StatefulWidget {
+class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
 
   @override
-  State<SearchScreen> createState() => _SearchScreenState();
+  ConsumerState<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _SearchScreenState extends ConsumerState<SearchScreen> {
   final List<String> _recentSearches = [
     'Aisha Usman',
     'Doctor',
@@ -53,6 +55,9 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+    final isVerified = authState.user?.status == 'Verified';
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -118,17 +123,77 @@ class _SearchScreenState extends State<SearchScreen> {
                 children: [
                   _buildSearchBox(),
                   const SizedBox(height: 20),
-                  _buildRecentSearchesSection(),
-                  const SizedBox(height: 24),
-                  _buildPopularSearchesSection(),
-                  const SizedBox(height: 28),
-                  _buildSuggestedMembersSection(),
+                  if (!isVerified) ...[
+                    _buildLockedTierOverlay(),
+                  ] else ...[
+                    _buildRecentSearchesSection(),
+                    const SizedBox(height: 24),
+                    _buildPopularSearchesSection(),
+                    const SizedBox(height: 28),
+                    _buildSuggestedMembersSection(),
+                  ],
                   const SizedBox(height: 24),
                 ],
               ),
             ),
           ),
           const CustomBottomNav(currentIndex: 0),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLockedTierOverlay() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTheme.accentGold.withOpacity(0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: Color(0xFFF5F3FF),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.lock_outline, color: Color(0xFF7C3AED), size: 36),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Search requires Tier 1 Upgrade',
+            style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Complete your advanced profile details, submit ID verification, and unlock searches of opposite-gender seekers.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[600], height: 1.5),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () => context.push('/premium-upgrade'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF7C3AED),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+            child: Text(
+              'Complete Profile & Pay to Unlock',
+              style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold),
+            ),
+          ),
         ],
       ),
     );

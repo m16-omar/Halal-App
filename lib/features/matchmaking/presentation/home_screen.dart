@@ -673,6 +673,65 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   // --- RECOMMENDED FOR YOU ---
   Widget _buildRecommendedSection() {
+    final authState = ref.read(authProvider);
+    final isVerified = authState.user?.status == 'Verified';
+
+    if (!isVerified) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppTheme.accentGold.withOpacity(0.2)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF5F3FF),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.lock_outline, color: Color(0xFF7C3AED), size: 36),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Unlock Tier 1 Matchmaking',
+              style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Complete your advanced profile details, submit ID verification, and upgrade to see latest seekers of the opposite gender.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[600], height: 1.5),
+            ),
+            const SizedBox(height: 18),
+            ElevatedButton(
+              onPressed: () => context.push('/premium-upgrade'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF7C3AED),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+              child: Text(
+                'Complete Profile & Pay to Unlock',
+                style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     final List<Map<String, dynamic>> candidates = [
       {
         'name': 'Aisha',

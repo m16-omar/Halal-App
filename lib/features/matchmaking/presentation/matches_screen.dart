@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../shared/components/custom_bottom_nav.dart';
+import '../../authentication/presentation/auth_provider.dart';
 
 class MatchesScreen extends ConsumerStatefulWidget {
   const MatchesScreen({super.key});
@@ -31,6 +32,9 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+    final isVerified = authState.user?.status == 'Verified';
+
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAF6),
       body: Column(
@@ -52,13 +56,17 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildHeaderSection(),
-                      _buildPremiumBanner(),
-                      _buildSubNavigationTabBar(),
-                      _buildFilterBar(),
-                      _buildDailyPicksSection(),
-                      _buildIncreaseChancesCard(),
-                      _buildRecommendedSection(),
-                      _buildTrustInAllahCard(),
+                      if (!isVerified) ...[
+                        _buildLockedTierOverlay(),
+                      ] else ...[
+                        _buildPremiumBanner(),
+                        _buildSubNavigationTabBar(),
+                        _buildFilterBar(),
+                        _buildDailyPicksSection(),
+                        _buildIncreaseChancesCard(),
+                        _buildRecommendedSection(),
+                        _buildTrustInAllahCard(),
+                      ],
                       const SizedBox(height: 24),
                     ],
                   ),
@@ -68,6 +76,70 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
           ),
           const CustomBottomNav(currentIndex: 1),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLockedTierOverlay() {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppTheme.accentGold.withOpacity(0.3), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F3FF),
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFDDD6FE)),
+              ),
+              child: const Icon(Icons.lock_outline, color: Color(0xFF7C3AED), size: 48),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Upgrade to Tier 1 Premium',
+              style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'A basic profile is blocked from viewing matches. Fill out your full details, submit government ID verification, and unlock the entire database of opposite-gender seekers.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600], height: 1.6),
+            ),
+            const SizedBox(height: 28),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => context.push('/premium-upgrade'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF7C3AED),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 2,
+                ),
+                child: Text(
+                  'Unlock Latest Seekers (₦5,000)',
+                  style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
