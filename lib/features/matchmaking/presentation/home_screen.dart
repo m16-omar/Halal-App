@@ -38,23 +38,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAF6),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await Future.delayed(const Duration(seconds: 1));
-          if (mounted) {
-            setState(() {});
-          }
-        },
-        color: AppTheme.primaryGreen,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            children: [
-              _buildHeaderSection(user, userName),
-              _buildMainDashboardContent(),
-            ],
+      body: Column(
+        children: [
+          _buildHeaderSection(user, userName),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                await Future.delayed(const Duration(seconds: 1));
+                if (mounted) {
+                  setState(() {});
+                }
+              },
+              color: AppTheme.primaryGreen,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: _buildMainDashboardContent(),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
       bottomNavigationBar: _buildCustomBottomNav(),
     );
@@ -200,8 +202,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 24),
-          _buildHeroCard(),
         ],
       ),
     );
@@ -330,6 +330,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          _buildHeroCard(),
+          const SizedBox(height: 24),
           _buildQuickNavigation(),
           const SizedBox(height: 24),
           _buildStatsRow(),
