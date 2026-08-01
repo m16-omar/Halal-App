@@ -490,61 +490,57 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
         ),
         const SizedBox(height: 24),
 
-        // Plans layout - SingleChildScrollView horizontal
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildPlanCard(
-                index: 0,
-                title: 'Basic',
-                desc: 'Get started with essential features',
-                price: '₦5,000',
-                duration: '/ 1 Month',
-                badge: 'Popular',
-                icon: Icons.send_outlined,
-                features: ['View limited profiles', 'Send interest', 'Supervised chat', 'Basic filters'],
-              ),
-              const SizedBox(width: 14),
-              _buildPlanCard(
-                index: 1,
-                title: 'Premium',
-                desc: 'Most popular for serious seekers',
-                price: '₦12,000',
-                duration: '/ 3 Months',
-                badge: 'Best Value',
-                icon: Icons.stars,
-                features: [
-                  'View unlimited profiles',
-                  'Send unlimited interest',
-                  'Supervised chat',
-                  'Advanced filters',
-                  'See who viewed you',
-                  'Priority support'
-                ],
-                isRecommended: true,
-              ),
-              const SizedBox(width: 14),
-              _buildPlanCard(
-                index: 2,
-                title: 'Platinum',
-                desc: 'The ultimate experience for better matches',
-                price: '₦20,000',
-                duration: '/ 6 Months',
-                badge: 'Ultimate',
-                icon: Icons.diamond_outlined,
-                features: [
-                  'All Premium features',
-                  'Top profile highlight',
-                  'Profile boost',
-                  'Read receipts',
-                  'Relationship guidance',
-                  'Priority support'
-                ],
-              ),
-            ],
-          ),
+        // Plans layout - Vertical static list (no horizontal scrolling)
+        Column(
+          children: [
+            _buildPlanCard(
+              index: 0,
+              title: 'Basic',
+              desc: 'Get started with essential features',
+              price: '₦5,000',
+              duration: '/ 1 Month',
+              badge: 'Popular',
+              icon: Icons.send_outlined,
+              features: ['View limited profiles', 'Send interest', 'Supervised chat', 'Basic filters'],
+            ),
+            const SizedBox(height: 14),
+            _buildPlanCard(
+              index: 1,
+              title: 'Premium',
+              desc: 'Most popular for serious seekers',
+              price: '₦12,000',
+              duration: '/ 3 Months',
+              badge: 'Best Value',
+              icon: Icons.stars,
+              features: [
+                'View unlimited profiles',
+                'Send unlimited interest',
+                'Supervised chat',
+                'Advanced filters',
+                'See who viewed you',
+                'Priority support'
+              ],
+              isRecommended: true,
+            ),
+            const SizedBox(height: 14),
+            _buildPlanCard(
+              index: 2,
+              title: 'Platinum',
+              desc: 'The ultimate experience for better matches',
+              price: '₦20,000',
+              duration: '/ 6 Months',
+              badge: 'Ultimate',
+              icon: Icons.diamond_outlined,
+              features: [
+                'All Premium features',
+                'Top profile highlight',
+                'Profile boost',
+                'Read receipts',
+                'Relationship guidance',
+                'Priority support'
+              ],
+            ),
+          ],
         ),
         const SizedBox(height: 20),
 
@@ -680,7 +676,6 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
         });
       },
       child: Container(
-        width: 170,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
