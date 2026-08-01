@@ -9,6 +9,7 @@ class SeekerUser {
   final String state;
   final String status;
   final String waliName;
+  final String phoneNumber;
 
   SeekerUser({
     required this.id,
@@ -17,6 +18,7 @@ class SeekerUser {
     required this.state,
     required this.status,
     required this.waliName,
+    required this.phoneNumber,
   });
 
   factory SeekerUser.fromJson(Map<String, dynamic> json) {
@@ -27,6 +29,7 @@ class SeekerUser {
       state: json['state'] as String,
       status: json['status'] as String,
       waliName: (json['wali_name'] as String?) ?? '',
+      phoneNumber: (json['phone_number'] as String?) ?? '',
     );
   }
 }
@@ -72,6 +75,7 @@ class AuthNotifier extends Notifier<AuthState> {
     await prefs.setString('user_state', user.state);
     await prefs.setString('user_status', user.status);
     await prefs.setString('user_wali_name', user.waliName);
+    await prefs.setString('user_phone_number', user.phoneNumber);
   }
 
   Future<void> _clearUserFromPrefs() async {
@@ -82,6 +86,7 @@ class AuthNotifier extends Notifier<AuthState> {
     await prefs.remove('user_state');
     await prefs.remove('user_status');
     await prefs.remove('user_wali_name');
+    await prefs.remove('user_phone_number');
   }
 
   Future<bool> checkAutoLogin() async {
@@ -97,6 +102,7 @@ class AuthNotifier extends Notifier<AuthState> {
           state: prefs.getString('user_state') ?? '',
           status: prefs.getString('user_status') ?? 'Unverified',
           waliName: prefs.getString('user_wali_name') ?? '',
+          phoneNumber: prefs.getString('user_phone_number') ?? '',
         );
         state = AuthState(user: user);
         return true;
@@ -128,13 +134,19 @@ class AuthNotifier extends Notifier<AuthState> {
     }
   }
 
-  Future<bool> login(String email, String password) async {
+  Future<bool> login({String? email, String? password, String? phone, String? otp}) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
-      final response = await _apiClient.post('/login/', {
-        'email': email,
-        'password': password,
-      });
+      final Map<String, dynamic> body = {};
+      if (phone != null && otp != null) {
+        body['phone'] = phone;
+        body['otp'] = otp;
+      } else {
+        body['email'] = email ?? '';
+        body['password'] = password ?? '';
+      }
+
+      final response = await _apiClient.post('/login/', body);
 
       if (response['status'] == 'success') {
         final userData = response['user'];
@@ -167,6 +179,7 @@ class AuthNotifier extends Notifier<AuthState> {
         state: '',
         status: status,
         waliName: '',
+        phoneNumber: '',
       ),
     );
   }
@@ -175,6 +188,7 @@ class AuthNotifier extends Notifier<AuthState> {
     required String fullName,
     required String email,
     required String password,
+    required String phoneNumber,
     required String gender,
     required String stateVal,
     required String waliName,
@@ -187,6 +201,7 @@ class AuthNotifier extends Notifier<AuthState> {
         'full_name': fullName,
         'email': email,
         'password': password,
+        'phone_number': phoneNumber,
         'gender': gender,
         'state': stateVal,
         'wali_name': waliName,

@@ -27,6 +27,7 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _phoneController = TextEditingController();
   bool _isPasswordVisible = false;
   
   final _occupationController = TextEditingController();
@@ -45,6 +46,7 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _phoneController.dispose();
     _occupationController.dispose();
     _expectationsController.dispose();
     _waliNameController.dispose();
@@ -76,6 +78,10 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
         _showErrorSnackBar('Password must be at least 6 characters.');
         return;
       }
+      if (_phoneController.text.trim().isEmpty || _phoneController.text.trim().length < 9) {
+        _showErrorSnackBar('Please enter a valid phone number.');
+        return;
+      }
     }
 
     if (_currentStep < _totalSteps - 1) {
@@ -83,8 +89,104 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
         _currentStep++;
       });
     } else {
-      _registerSeeker();
+      _showOtpVerificationDialog();
     }
+  }
+
+  void _showOtpVerificationDialog() {
+    final rawPhone = _phoneController.text.trim();
+    final cleanPhone = rawPhone.startsWith('+234') ? rawPhone : '+234$rawPhone';
+    final otpVerificationController = TextEditingController();
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: EdgeInsets.only(
+          top: 24,
+          left: 24,
+          right: 24,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'OTP Security Verification',
+                  style: GoogleFonts.outfit(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primaryGreen,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'We have sent a 6-digit verification code to your phone number $cleanPhone for account security.',
+              style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Verification Code',
+              style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            TextFormField(
+              controller: otpVerificationController,
+              keyboardType: TextInputType.number,
+              maxLength: 6,
+              decoration: const InputDecoration(
+                hintText: 'Enter 6-digit OTP code',
+                prefixIcon: Icon(Icons.lock_outline),
+                counterText: '',
+                suffixText: 'Use 123456',
+                suffixStyle: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () {
+                if (otpVerificationController.text.trim() == '123456') {
+                  Navigator.pop(context); // Close OTP Modal
+                  _registerSeeker(); // Proceed with API registration
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Invalid OTP code. Please enter 123456.'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryGreen,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 56),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: Text(
+                'Verify & Create Account',
+                style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _registerSeeker() async {
@@ -98,10 +200,14 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
       ),
     );
 
+    final rawPhone = _phoneController.text.trim();
+    final cleanPhone = rawPhone.startsWith('+234') ? rawPhone : '+234$rawPhone';
+
     final success = await ref.read(authProvider.notifier).register(
       fullName: _nameController.text.trim(),
       email: _emailController.text.trim(),
       password: _passwordController.text,
+      phoneNumber: cleanPhone,
       gender: _gender ?? 'groom',
       stateVal: _state,
       waliName: _waliNameController.text.trim(),
@@ -251,6 +357,44 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
               },
             ),
           ),
+        ),
+        const SizedBox(height: 20),
+        Text(
+          'Phone Number',
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.darkCharcoal,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey[300]!),
+              ),
+              child: Text(
+                '+234',
+                style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: TextFormField(
+                controller: _phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(
+                  labelText: 'Phone Number',
+                  hintText: '803 123 4567',
+                  prefixIcon: Icon(Icons.phone_outlined),
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 20),
         Text(
