@@ -10,6 +10,10 @@ class SeekerUser {
   final String status;
   final String waliName;
   final String phoneNumber;
+  final String role; // 'seeker' or 'wali'
+  final String? email;
+  final String? relationship;
+  final String? wardName;
 
   SeekerUser({
     required this.id,
@@ -19,17 +23,25 @@ class SeekerUser {
     required this.status,
     required this.waliName,
     required this.phoneNumber,
+    this.role = 'seeker',
+    this.email,
+    this.relationship,
+    this.wardName,
   });
 
   factory SeekerUser.fromJson(Map<String, dynamic> json) {
     return SeekerUser(
       id: json['id'] as int,
       fullName: json['full_name'] as String,
-      gender: json['gender'] as String,
-      state: json['state'] as String,
-      status: json['status'] as String,
+      gender: (json['gender'] as String?) ?? '',
+      state: (json['state'] as String?) ?? '',
+      status: (json['status'] as String?) ?? 'Unverified',
       waliName: (json['wali_name'] as String?) ?? '',
       phoneNumber: (json['phone_number'] as String?) ?? '',
+      role: (json['role'] as String?) ?? 'seeker',
+      email: json['email'] as String?,
+      relationship: json['relationship'] as String?,
+      wardName: json['ward_name'] as String?,
     );
   }
 }
@@ -76,6 +88,10 @@ class AuthNotifier extends Notifier<AuthState> {
     await prefs.setString('user_status', user.status);
     await prefs.setString('user_wali_name', user.waliName);
     await prefs.setString('user_phone_number', user.phoneNumber);
+    await prefs.setString('user_role', user.role);
+    if (user.email != null) await prefs.setString('user_email', user.email!);
+    if (user.relationship != null) await prefs.setString('user_relationship', user.relationship!);
+    if (user.wardName != null) await prefs.setString('user_ward_name', user.wardName!);
   }
 
   Future<void> _clearUserFromPrefs() async {
@@ -87,6 +103,10 @@ class AuthNotifier extends Notifier<AuthState> {
     await prefs.remove('user_status');
     await prefs.remove('user_wali_name');
     await prefs.remove('user_phone_number');
+    await prefs.remove('user_role');
+    await prefs.remove('user_email');
+    await prefs.remove('user_relationship');
+    await prefs.remove('user_ward_name');
   }
 
   Future<bool> checkAutoLogin() async {
@@ -103,6 +123,10 @@ class AuthNotifier extends Notifier<AuthState> {
           status: prefs.getString('user_status') ?? 'Unverified',
           waliName: prefs.getString('user_wali_name') ?? '',
           phoneNumber: prefs.getString('user_phone_number') ?? '',
+          role: prefs.getString('user_role') ?? 'seeker',
+          email: prefs.getString('user_email'),
+          relationship: prefs.getString('user_relationship'),
+          wardName: prefs.getString('user_ward_name'),
         );
         state = AuthState(user: user);
         return true;
@@ -223,6 +247,48 @@ class AuthNotifier extends Notifier<AuthState> {
       }
     } catch (e) {
       state = AuthState(errorMessage: e.toString().replaceAll('Exception: ', ''));
+      return false;
+    }
+  }
+
+  Future<bool> registerWali({
+    required String name,
+    required String email,
+    required String password,
+    required String phone,
+    required String relationship,
+    required String wardEmail,
+  }) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      final response = await _apiClient.post('/walis/register/', {
+        'name': name,
+        'email': email,
+        'password': password,
+        'phone': phone,
+        'relationship': relationship,
+        'ward_email': wardEmail,
+      });
+
+      if (response['status'] == 'success') {
+        final userData = response['user'];
+        final user = SeekerUser.fromJson(userData);
+        await _saveUserToPrefs(user);
+        await markOnboardingComplete();
+        state = AuthState(user: user);
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: response['message'] ?? 'Registration failed',
+        );
+        return false;
+      }
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString().replaceAll('Exception: ', ''),
+      );
       return false;
     }
   }

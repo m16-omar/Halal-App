@@ -23,8 +23,10 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
   void _onContinue() {
     if (_selectedRole == 'seeker') {
       context.push('/seeker-setup');
+    } else if (_selectedRole == 'wali') {
+      context.push('/wali-setup');
     } else {
-      String roleName = _selectedRole == 'wali' ? 'Wali (Guardian)' : 'Imam / Counselor';
+      String roleName = 'Imam / Counselor';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(

@@ -3,6 +3,7 @@ import '../../features/onboarding/presentation/splash_screen.dart';
 import '../../features/onboarding/presentation/welcome_screen.dart';
 import '../../features/onboarding/presentation/role_selection_screen.dart';
 import '../../features/onboarding/presentation/seeker_setup_screen.dart';
+import '../../features/onboarding/presentation/wali_setup_screen.dart';
 import '../../features/verification/presentation/verification_screen.dart';
 import '../../features/matchmaking/presentation/home_screen.dart';
 import '../../features/matchmaking/presentation/matches_screen.dart';
@@ -51,6 +52,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/seeker-setup',
       builder: (context, state) => const SeekerSetupScreen(),
+    ),
+    GoRoute(
+      path: '/wali-setup',
+      builder: (context, state) => const WaliSetupScreen(),
     ),
     GoRoute(
       path: '/verification',
