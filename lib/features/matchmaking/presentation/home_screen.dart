@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -29,6 +30,40 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   final String _quranImg = 'https://images.unsplash.com/photo-1609599006353-e629fffaae6f?w=100&auto=format&fit=crop&q=80';
   final String _ringsImg = 'https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=100&auto=format&fit=crop&q=80';
   final String _prayImg = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=100&auto=format&fit=crop&q=80';
+
+  late PageController _heroPageController;
+  Timer? _heroCarouselTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _heroPageController = PageController(initialPage: 0);
+    _startHeroCarouselTimer();
+  }
+
+  void _startHeroCarouselTimer() {
+    _heroCarouselTimer?.cancel();
+    _heroCarouselTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (_heroPageController.hasClients) {
+        int nextPage = _selectedHeroPage + 1;
+        if (nextPage >= 4) {
+          nextPage = 0;
+        }
+        _heroPageController.animateToPage(
+          nextPage,
+          duration: const Duration(milliseconds: 800),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _heroPageController.dispose();
+    _heroCarouselTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -255,6 +290,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         child: Stack(
           children: [
             PageView.builder(
+              controller: _heroPageController,
               itemCount: slides.length,
               onPageChanged: (page) {
                 setState(() {
