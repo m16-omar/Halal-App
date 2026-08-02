@@ -323,28 +323,47 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  // --- MAIN DASHBOARD CONTENT (White Scrollable Body) ---
   Widget _buildMainDashboardContent() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeroCard(),
-          const SizedBox(height: 24),
-          _buildQuickNavigation(),
-          const SizedBox(height: 24),
-          _buildStatsRow(),
-          const SizedBox(height: 24),
-          _buildRecommendedSection(),
-          const SizedBox(height: 24),
-          _buildDailyReminderCard(),
-          const SizedBox(height: 24),
-          _buildUpcomingAppointments(),
-          const SizedBox(height: 24),
-          _buildTipsAndCommunityGrid(),
-        ],
-      ),
+    return Column(
+      children: [
+        // Dark Green Hero Area (matches the top header color)
+        Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF082214), // Blends with the bottom of the static header
+                Color(0xFF0C2B1B), // Matches the dark green gradient flow
+              ],
+            ),
+          ),
+          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 24, top: 8),
+          child: _buildHeroCard(),
+        ),
+        
+        // Light Cream Body Area
+        Container(
+          color: const Color(0xFFF9FAF6),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildQuickNavigation(),
+              const SizedBox(height: 24),
+              _buildStatsRow(),
+              const SizedBox(height: 24),
+              _buildRecommendedSection(),
+              const SizedBox(height: 24),
+              _buildDailyReminderCard(),
+              const SizedBox(height: 24),
+              _buildUpcomingAppointments(),
+              const SizedBox(height: 24),
+              _buildTipsAndCommunityGrid(),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
