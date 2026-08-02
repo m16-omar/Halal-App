@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../authentication/presentation/auth_provider.dart';
 
@@ -38,6 +39,50 @@ class _WaliSetupScreenState extends ConsumerState<WaliSetupScreen> {
     'Legal Guardian',
     'Other'
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDraft();
+  }
+
+  Future<void> _loadDraft() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _currentStep = prefs.getInt('draft_wali_step') ?? 0;
+      _nameController.text = prefs.getString('draft_wali_name') ?? '';
+      _emailController.text = prefs.getString('draft_wali_email') ?? '';
+      _passwordController.text = prefs.getString('draft_wali_password') ?? '';
+      _phoneController.text = prefs.getString('draft_wali_phone') ?? '';
+      _wardNameController.text = prefs.getString('draft_wali_ward_name') ?? '';
+      _wardEmailController.text = prefs.getString('draft_wali_ward_email') ?? '';
+      _relationship = prefs.getString('draft_wali_relationship') ?? 'Father';
+    });
+  }
+
+  Future<void> _saveDraft() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('draft_wali_step', _currentStep);
+    await prefs.setString('draft_wali_name', _nameController.text);
+    await prefs.setString('draft_wali_email', _emailController.text);
+    await prefs.setString('draft_wali_password', _passwordController.text);
+    await prefs.setString('draft_wali_phone', _phoneController.text);
+    await prefs.setString('draft_wali_ward_name', _wardNameController.text);
+    await prefs.setString('draft_wali_ward_email', _wardEmailController.text);
+    await prefs.setString('draft_wali_relationship', _relationship);
+  }
+
+  Future<void> _clearDraft() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('draft_wali_step');
+    await prefs.remove('draft_wali_name');
+    await prefs.remove('draft_wali_email');
+    await prefs.remove('draft_wali_password');
+    await prefs.remove('draft_wali_phone');
+    await prefs.remove('draft_wali_ward_name');
+    await prefs.remove('draft_wali_ward_email');
+    await prefs.remove('draft_wali_relationship');
+  }
 
   @override
   void dispose() {
@@ -92,6 +137,7 @@ class _WaliSetupScreenState extends ConsumerState<WaliSetupScreen> {
       setState(() {
         _currentStep++;
       });
+      _saveDraft();
     } else {
       _showOtpVerificationDialog();
     }
@@ -102,6 +148,7 @@ class _WaliSetupScreenState extends ConsumerState<WaliSetupScreen> {
       setState(() {
         _currentStep--;
       });
+      _saveDraft();
     }
   }
 
@@ -227,6 +274,7 @@ class _WaliSetupScreenState extends ConsumerState<WaliSetupScreen> {
     if (mounted) {
       Navigator.of(context).pop(); // Close spinner
       if (success) {
+        await _clearDraft();
         context.go('/'); // Send Wali directly to the dashboard
       } else {
         final error = ref.read(authProvider).errorMessage ?? 'Registration failed';
@@ -320,6 +368,7 @@ class _WaliSetupScreenState extends ConsumerState<WaliSetupScreen> {
         const SizedBox(height: 24),
         TextFormField(
           controller: _nameController,
+          onChanged: (val) => _saveDraft(),
           decoration: const InputDecoration(
             labelText: 'Full Name',
             hintText: 'Enter your full name',
@@ -329,6 +378,7 @@ class _WaliSetupScreenState extends ConsumerState<WaliSetupScreen> {
         const SizedBox(height: 20),
         TextFormField(
           controller: _emailController,
+          onChanged: (val) => _saveDraft(),
           keyboardType: TextInputType.emailAddress,
           decoration: const InputDecoration(
             labelText: 'Email Address',
@@ -339,6 +389,7 @@ class _WaliSetupScreenState extends ConsumerState<WaliSetupScreen> {
         const SizedBox(height: 20),
         TextFormField(
           controller: _passwordController,
+          onChanged: (val) => _saveDraft(),
           obscureText: !_isPasswordVisible,
           decoration: InputDecoration(
             labelText: 'Password',
@@ -386,6 +437,7 @@ class _WaliSetupScreenState extends ConsumerState<WaliSetupScreen> {
             Expanded(
               child: TextFormField(
                 controller: _phoneController,
+                onChanged: (val) => _saveDraft(),
                 keyboardType: TextInputType.phone,
                 decoration: const InputDecoration(
                   labelText: 'Phone Number',
@@ -416,6 +468,7 @@ class _WaliSetupScreenState extends ConsumerState<WaliSetupScreen> {
         const SizedBox(height: 24),
         TextFormField(
           controller: _wardNameController,
+          onChanged: (val) => _saveDraft(),
           decoration: const InputDecoration(
             labelText: 'Ward\'s Full Name',
             hintText: 'Enter your ward\'s full name',
@@ -425,6 +478,7 @@ class _WaliSetupScreenState extends ConsumerState<WaliSetupScreen> {
         const SizedBox(height: 20),
         TextFormField(
           controller: _wardEmailController,
+          onChanged: (val) => _saveDraft(),
           keyboardType: TextInputType.emailAddress,
           decoration: const InputDecoration(
             labelText: 'Ward\'s Registered Email',
@@ -455,6 +509,7 @@ class _WaliSetupScreenState extends ConsumerState<WaliSetupScreen> {
               setState(() {
                 _relationship = val;
               });
+              _saveDraft();
             }
           },
           decoration: const InputDecoration(

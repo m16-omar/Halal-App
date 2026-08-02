@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../authentication/presentation/auth_provider.dart';
 
@@ -40,6 +41,83 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
   final List<String> _lgas = ['Bida', 'Gbako', 'Katcha', 'Lavun', 'Mokwa', 'Edu', 'Patigi', 'Lokoja', 'Other'];
   final List<String> _states = ['Niger', 'Kwara', 'Kogi', 'Federal Capital Territory (FCT)'];
   final List<String> _languages = ['Nupe', 'English', 'Hausa', 'Yoruba', 'Arabic'];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDraft();
+  }
+
+  Future<void> _loadDraft() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _currentStep = prefs.getInt('draft_seeker_step') ?? 0;
+      _gender = prefs.getString('draft_seeker_gender');
+      _ageGroup = prefs.getString('draft_seeker_age_group');
+      _nameController.text = prefs.getString('draft_seeker_name') ?? '';
+      _emailController.text = prefs.getString('draft_seeker_email') ?? '';
+      _passwordController.text = prefs.getString('draft_seeker_password') ?? '';
+      _phoneController.text = prefs.getString('draft_seeker_phone') ?? '';
+      _lga = prefs.getString('draft_seeker_lga') ?? 'Bida';
+      _state = prefs.getString('draft_seeker_state') ?? 'Niger';
+      _occupationController.text = prefs.getString('draft_seeker_occupation') ?? '';
+      _practiceLevel = prefs.getString('draft_seeker_practice_level');
+      
+      final savedLanguages = prefs.getStringList('draft_seeker_languages');
+      if (savedLanguages != null) {
+        _selectedLanguages.clear();
+        _selectedLanguages.addAll(savedLanguages);
+      }
+      
+      _timeline = prefs.getString('draft_seeker_timeline');
+      _expectationsController.text = prefs.getString('draft_seeker_expectations') ?? '';
+      _waliNameController.text = prefs.getString('draft_seeker_wali_name') ?? '';
+      _waliRelationshipController.text = prefs.getString('draft_seeker_wali_relationship') ?? '';
+      _waliContactController.text = prefs.getString('draft_seeker_wali_contact') ?? '';
+    });
+  }
+
+  Future<void> _saveDraft() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('draft_seeker_step', _currentStep);
+    if (_gender != null) await prefs.setString('draft_seeker_gender', _gender!);
+    if (_ageGroup != null) await prefs.setString('draft_seeker_age_group', _ageGroup!);
+    await prefs.setString('draft_seeker_name', _nameController.text);
+    await prefs.setString('draft_seeker_email', _emailController.text);
+    await prefs.setString('draft_seeker_password', _passwordController.text);
+    await prefs.setString('draft_seeker_phone', _phoneController.text);
+    await prefs.setString('draft_seeker_lga', _lga);
+    await prefs.setString('draft_seeker_state', _state);
+    await prefs.setString('draft_seeker_occupation', _occupationController.text);
+    if (_practiceLevel != null) await prefs.setString('draft_seeker_practice_level', _practiceLevel!);
+    await prefs.setStringList('draft_seeker_languages', _selectedLanguages);
+    if (_timeline != null) await prefs.setString('draft_seeker_timeline', _timeline!);
+    await prefs.setString('draft_seeker_expectations', _expectationsController.text);
+    await prefs.setString('draft_seeker_wali_name', _waliNameController.text);
+    await prefs.setString('draft_seeker_wali_relationship', _waliRelationshipController.text);
+    await prefs.setString('draft_seeker_wali_contact', _waliContactController.text);
+  }
+
+  Future<void> _clearDraft() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('draft_seeker_step');
+    await prefs.remove('draft_seeker_gender');
+    await prefs.remove('draft_seeker_age_group');
+    await prefs.remove('draft_seeker_name');
+    await prefs.remove('draft_seeker_email');
+    await prefs.remove('draft_seeker_password');
+    await prefs.remove('draft_seeker_phone');
+    await prefs.remove('draft_seeker_lga');
+    await prefs.remove('draft_seeker_state');
+    await prefs.remove('draft_seeker_occupation');
+    await prefs.remove('draft_seeker_practice_level');
+    await prefs.remove('draft_seeker_languages');
+    await prefs.remove('draft_seeker_timeline');
+    await prefs.remove('draft_seeker_expectations');
+    await prefs.remove('draft_seeker_wali_name');
+    await prefs.remove('draft_seeker_wali_relationship');
+    await prefs.remove('draft_seeker_wali_contact');
+  }
 
   @override
   void dispose() {
@@ -88,6 +166,7 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
       setState(() {
         _currentStep++;
       });
+      _saveDraft();
     } else {
       _showOtpVerificationDialog();
     }
@@ -218,6 +297,7 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
     if (mounted) {
       Navigator.of(context).pop();
       if (success) {
+        await _clearDraft();
         context.push('/verification');
       } else {
         final error = ref.read(authProvider).errorMessage ?? 'Registration failed';
@@ -231,6 +311,7 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
       setState(() {
         _currentStep--;
       });
+      _saveDraft();
     }
   }
 
@@ -320,6 +401,7 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
         const SizedBox(height: 24),
         TextFormField(
           controller: _nameController,
+          onChanged: (val) => _saveDraft(),
           decoration: const InputDecoration(
             labelText: 'First Name (or Initials)',
             hintText: 'Enter your first name only',
@@ -329,6 +411,7 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
         const SizedBox(height: 20),
         TextFormField(
           controller: _emailController,
+          onChanged: (val) => _saveDraft(),
           keyboardType: TextInputType.emailAddress,
           decoration: const InputDecoration(
             labelText: 'Email Address',
@@ -339,6 +422,7 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
         const SizedBox(height: 20),
         TextFormField(
           controller: _passwordController,
+          onChanged: (val) => _saveDraft(),
           obscureText: !_isPasswordVisible,
           decoration: InputDecoration(
             labelText: 'Password',
@@ -386,6 +470,7 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
             Expanded(
               child: TextFormField(
                 controller: _phoneController,
+                onChanged: (val) => _saveDraft(),
                 keyboardType: TextInputType.phone,
                 decoration: const InputDecoration(
                   labelText: 'Phone Number',
@@ -408,7 +493,10 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
               child: _buildChoiceCard(
                 label: 'Groom (Male)',
                 isSelected: _gender == 'groom',
-                onTap: () => setState(() => _gender = 'groom'),
+                onTap: () {
+                  setState(() => _gender = 'groom');
+                  _saveDraft();
+                },
                 icon: Icons.male,
               ),
             ),
@@ -417,7 +505,10 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
               child: _buildChoiceCard(
                 label: 'Bride (Female)',
                 isSelected: _gender == 'bride',
-                onTap: () => setState(() => _gender = 'bride'),
+                onTap: () {
+                  setState(() => _gender = 'bride');
+                  _saveDraft();
+                },
                 icon: Icons.female,
               ),
             ),
@@ -435,7 +526,10 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
               child: _buildChoiceCard(
                 label: '18 - 25',
                 isSelected: _ageGroup == '18-25',
-                onTap: () => setState(() => _ageGroup = '18-25'),
+                onTap: () {
+                  setState(() => _ageGroup = '18-25');
+                  _saveDraft();
+                },
                 icon: Icons.cake_outlined,
               ),
             ),
@@ -444,7 +538,10 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
               child: _buildChoiceCard(
                 label: '26 - 35',
                 isSelected: _ageGroup == '26-35',
-                onTap: () => setState(() => _ageGroup = '26-35'),
+                onTap: () {
+                  setState(() => _ageGroup = '26-35');
+                  _saveDraft();
+                },
                 icon: Icons.cake_outlined,
               ),
             ),
@@ -453,7 +550,10 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
               child: _buildChoiceCard(
                 label: '36+',
                 isSelected: _ageGroup == '36+',
-                onTap: () => setState(() => _ageGroup = '36+'),
+                onTap: () {
+                  setState(() => _ageGroup = '36+');
+                  _saveDraft();
+                },
                 icon: Icons.cake_outlined,
               ),
             ),
@@ -473,7 +573,10 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
                     child: Text(state, style: GoogleFonts.inter(fontSize: 14)),
                   );
                 }).toList(),
-                onChanged: (val) => setState(() => _state = val!),
+                onChanged: (val) {
+                  setState(() => _state = val!);
+                  _saveDraft();
+                },
               ),
             ),
             const SizedBox(width: 16),
@@ -488,7 +591,10 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
                     child: Text(lga, style: GoogleFonts.inter(fontSize: 14)),
                   );
                 }).toList(),
-                onChanged: (val) => setState(() => _lga = val!),
+                onChanged: (val) {
+                  setState(() => _lga = val!);
+                  _saveDraft();
+                },
               ),
             ),
           ],
@@ -496,6 +602,7 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
         const SizedBox(height: 20),
         TextFormField(
           controller: _occupationController,
+          onChanged: (val) => _saveDraft(),
           decoration: const InputDecoration(
             labelText: 'Occupation',
             hintText: 'Enter your profession',
@@ -531,21 +638,30 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
               label: 'Practising (Committed to all Fardh & Sunnah)',
               value: 'practising',
               groupValue: _practiceLevel,
-              onChanged: (val) => setState(() => _practiceLevel = val),
+              onChanged: (val) {
+                setState(() => _practiceLevel = val);
+                _saveDraft();
+              },
             ),
             const SizedBox(height: 8),
             _buildRadioCard(
               label: 'Moderately Practising (Trying to build consistency)',
               value: 'moderate',
               groupValue: _practiceLevel,
-              onChanged: (val) => setState(() => _practiceLevel = val),
+              onChanged: (val) {
+                setState(() => _practiceLevel = val);
+                _saveDraft();
+              },
             ),
             const SizedBox(height: 8),
             _buildRadioCard(
               label: 'Learning (Seeking guidance and knowledge)',
               value: 'learning',
               groupValue: _practiceLevel,
-              onChanged: (val) => setState(() => _practiceLevel = val),
+              onChanged: (val) {
+                setState(() => _practiceLevel = val);
+                _saveDraft();
+              },
             ),
           ],
         ),
@@ -571,6 +687,7 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
                     _selectedLanguages.remove(lang);
                   }
                 });
+                _saveDraft();
               },
               selectedColor: AppTheme.primaryGreen.withAlpha(51),
               checkmarkColor: AppTheme.primaryGreen,
@@ -595,11 +712,15 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
               child: Text(timeline, style: GoogleFonts.inter(fontSize: 14)),
             );
           }).toList(),
-          onChanged: (val) => setState(() => _timeline = val),
+          onChanged: (val) {
+            setState(() => _timeline = val);
+            _saveDraft();
+          },
         ),
         const SizedBox(height: 20),
         TextFormField(
           controller: _expectationsController,
+          onChanged: (val) => _saveDraft(),
           maxLines: 3,
           decoration: const InputDecoration(
             labelText: 'Marriage Expectations',
@@ -627,6 +748,7 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
         const SizedBox(height: 24),
         TextFormField(
           controller: _waliNameController,
+          onChanged: (val) => _saveDraft(),
           decoration: const InputDecoration(
             labelText: 'Wali\'s Name',
             hintText: 'Enter guardian\'s full name',
@@ -636,6 +758,7 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
         const SizedBox(height: 20),
         TextFormField(
           controller: _waliRelationshipController,
+          onChanged: (val) => _saveDraft(),
           decoration: const InputDecoration(
             labelText: 'Wali\'s Relationship',
             hintText: 'e.g. Father, Uncle, Elder Brother',
@@ -645,6 +768,7 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
         const SizedBox(height: 20),
         TextFormField(
           controller: _waliContactController,
+          onChanged: (val) => _saveDraft(),
           keyboardType: TextInputType.phone,
           decoration: const InputDecoration(
             labelText: 'Wali\'s Phone Number / WhatsApp',
