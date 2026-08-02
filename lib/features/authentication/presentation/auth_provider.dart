@@ -321,6 +321,30 @@ class AuthNotifier extends Notifier<AuthState> {
       return false;
     }
   }
+
+  Future<void> refreshUserStatus() async {
+    final currentUser = state.user;
+    if (currentUser == null) return;
+
+    try {
+      final response = await _apiClient.get(
+        '/user/status/',
+        queryParameters: {
+          'id': currentUser.id.toString(),
+          'role': currentUser.role,
+        },
+      );
+
+      if (response['status'] == 'success') {
+        final userData = response['user'];
+        final updatedUser = SeekerUser.fromJson(userData);
+        await _saveUserToPrefs(updatedUser);
+        state = AuthState(user: updatedUser);
+      }
+    } catch (e) {
+      // Fail silently for background status updates to avoid disrupting user experience
+    }
+  }
 }
 
 final authProvider = NotifierProvider<AuthNotifier, AuthState>(() {

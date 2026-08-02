@@ -39,6 +39,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.initState();
     _heroPageController = PageController(initialPage: 0);
     _startHeroCarouselTimer();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(authProvider.notifier).refreshUserStatus();
+    });
   }
 
   void _startHeroCarouselTimer() {
@@ -79,7 +82,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
-                await Future.delayed(const Duration(seconds: 1));
+                await ref.read(authProvider.notifier).refreshUserStatus();
                 if (mounted) {
                   setState(() {});
                 }
