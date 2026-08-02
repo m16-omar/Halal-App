@@ -154,26 +154,43 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
     );
 
     try {
-      await Future.delayed(const Duration(seconds: 2));
-      
+      final currentUser = ref.read(authProvider).user;
+      if (currentUser == null) {
+        throw Exception('User session not found. Please log in again.');
+      }
+
+      final ageVal = int.tryParse(_ageController.text.trim()) ?? 0;
+
+      final success = await ref.read(authProvider.notifier).premiumUpgrade(
+        seekerId: currentUser.id,
+        age: ageVal,
+        stateOfOrigin: _stateOfOriginController.text.trim(),
+        currentlyBasedIn: _currentlyBasedInController.text.trim(),
+        tribe: _tribeController.text.trim(),
+        maritalStatus: _maritalStatus,
+        children: _childrenController.text.trim(),
+        education: _education,
+        occupation: _occupationController.text.trim(),
+        aboutMe: _aboutMeController.text.trim(),
+        spouseAgeRange: _spouseAgeRangeController.text.trim(),
+        spouseDesiredQualities: _spouseDesiredQualitiesController.text.trim(),
+      );
+
       if (mounted) {
         Navigator.pop(context);
-        final currentUser = ref.read(authProvider).user;
-        if (currentUser != null) {
+        if (success) {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('user_status', 'Verified');
-          ref.read(authProvider.notifier).setTemporaryUser(
-            fullName: currentUser.fullName,
-            status: 'Verified',
-          );
-          await ref.read(authProvider.notifier).checkAutoLogin();
+          _showSuccessDialog();
+        } else {
+          final error = ref.read(authProvider).errorMessage ?? 'Upgrade failed';
+          _showErrorSnackBar(error);
         }
-        _showSuccessDialog();
       }
     } catch (e) {
       if (mounted) {
         Navigator.pop(context);
-        _showErrorSnackBar(e.toString());
+        _showErrorSnackBar(e.toString().replaceAll('Exception: ', ''));
       }
     }
   }

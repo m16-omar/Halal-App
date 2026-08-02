@@ -218,6 +218,12 @@ class AuthNotifier extends Notifier<AuthState> {
     required String waliName,
     required String waliRelationship,
     required String waliContact,
+    String ageGroup = '',
+    String lga = '',
+    String occupation = '',
+    String practiceLevel = '',
+    String timeline = '',
+    String expectations = '',
   }) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
@@ -232,6 +238,12 @@ class AuthNotifier extends Notifier<AuthState> {
         'wali_relationship': waliRelationship,
         'wali_contact': waliContact,
         'status': 'Unverified',
+        'age_group': ageGroup,
+        'lga': lga,
+        'occupation': occupation,
+        'practice_level': practiceLevel,
+        'timeline': timeline,
+        'expectations': expectations,
       });
 
       if (response['status'] == 'success') {
@@ -321,6 +333,61 @@ class AuthNotifier extends Notifier<AuthState> {
       return false;
     }
   }
+
+  Future<bool> premiumUpgrade({
+    required int seekerId,
+    required int age,
+    required String stateOfOrigin,
+    required String currentlyBasedIn,
+    required String tribe,
+    required String maritalStatus,
+    required String children,
+    required String education,
+    required String occupation,
+    required String aboutMe,
+    required String spouseAgeRange,
+    required String spouseDesiredQualities,
+  }) async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      final response = await _apiClient.post('/premium-upgrade/', {
+        'seeker_id': seekerId,
+        'age': age,
+        'state_of_origin': stateOfOrigin,
+        'currently_based_in': currentlyBasedIn,
+        'tribe': tribe,
+        'marital_status': maritalStatus,
+        'children': children,
+        'education': education,
+        'occupation': occupation,
+        'about_me': aboutMe,
+        'spouse_age_range': spouseAgeRange,
+        'spouse_desired_qualities': spouseDesiredQualities,
+      });
+
+      if (response['status'] == 'success') {
+        final userData = response['user'];
+        final user = SeekerUser.fromJson(userData);
+        await _saveUserToPrefs(user);
+        state = AuthState(user: user);
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: response['message'] ?? 'Premium upgrade failed',
+        );
+        return false;
+      }
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString().replaceAll('Exception: ', ''),
+      );
+      return false;
+    }
+  }
+
+
 
   Future<void> refreshUserStatus() async {
     final currentUser = state.user;

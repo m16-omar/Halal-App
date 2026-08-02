@@ -292,6 +292,12 @@ class _SeekerSetupScreenState extends ConsumerState<SeekerSetupScreen> {
       waliName: _waliNameController.text.trim(),
       waliRelationship: _waliRelationshipController.text.trim(),
       waliContact: _waliContactController.text.trim(),
+      ageGroup: _ageGroup ?? '',
+      lga: _lga,
+      occupation: _occupationController.text.trim(),
+      practiceLevel: _practiceLevel ?? '',
+      timeline: _timeline ?? '',
+      expectations: _expectationsController.text.trim(),
     );
 
     if (mounted) {
