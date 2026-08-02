@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,10 +15,62 @@ class CounselingScreen extends ConsumerStatefulWidget {
 
 class _CounselingScreenState extends ConsumerState<CounselingScreen> {
   final TextEditingController _searchController = TextEditingController();
+  late PageController _versePageController;
+  Timer? _verseCarouselTimer;
+  int _selectedVersePage = 0;
+
+  final List<Map<String, String>> _ayahs = [
+    {
+      'text': '"And among His signs is that He created for you from yourselves spouses that you may find tranquility in them."',
+      'reference': '— Qur\'an 30:21',
+    },
+    {
+      'text': '"They (your wives) are a clothing/garment for you, and you are a clothing/garment for them."',
+      'reference': '— Qur\'an 2:187',
+    },
+    {
+      'text': '"He is the One Who created you from a single soul, and made from it its mate so he may find comfort in her."',
+      'reference': '— Qur\'an 7:189',
+    },
+    {
+      'text': '"Our Lord, grant us from among our wives and offspring comfort to our eyes and make us an example for the righteous."',
+      'reference': '— Qur\'an 25:74',
+    },
+    {
+      'text': '"And Allah has made for you from yourselves mates, and has made for you from your mates children and grandchildren."',
+      'reference': '— Qur\'an 16:72',
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _versePageController = PageController(initialPage: 0);
+    _startVerseCarouselTimer();
+  }
+
+  void _startVerseCarouselTimer() {
+    _verseCarouselTimer?.cancel();
+    _verseCarouselTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (_versePageController.hasClients) {
+        int nextPage = _selectedVersePage + 1;
+        if (nextPage >= _ayahs.length) {
+          nextPage = 0;
+        }
+        _versePageController.animateToPage(
+          nextPage,
+          duration: const Duration(milliseconds: 800),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _verseCarouselTimer?.cancel();
+    _versePageController.dispose();
     super.dispose();
   }
 
@@ -227,6 +280,7 @@ class _CounselingScreenState extends ConsumerState<CounselingScreen> {
           border: Border.all(color: const Color(0xFFC8E6C9), width: 0.5),
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Left lantern/book graphic
             Column(
@@ -258,52 +312,71 @@ class _CounselingScreenState extends ConsumerState<CounselingScreen> {
               ],
             ),
             const SizedBox(width: 16),
-            // Right Quran Verse text
+            // Right Quran Verse sliding text
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '"And among His signs is that He created for you from yourselves spouses that you may find tranquility in them."',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic,
-                      fontWeight: FontWeight.w600,
-                      color: const Color(0xFF1B5E20),
-                      height: 1.4,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '— Qur\'an 30:21',
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF558B2F),
+              child: SizedBox(
+                height: 85,
+                child: PageView.builder(
+                  controller: _versePageController,
+                  itemCount: _ayahs.length,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _selectedVersePage = index;
+                    });
+                  },
+                  itemBuilder: (context, index) {
+                    final ayah = _ayahs[index];
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          ayah['text']!,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            fontStyle: FontStyle.italic,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF1B5E20),
+                            height: 1.4,
+                          ),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      // Carousel Indicator dots
-                      Row(
-                        children: List.generate(5, (index) {
-                          return Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 2),
-                            width: index == 0 ? 10 : 5,
-                            height: 5,
-                            decoration: BoxDecoration(
-                              color: index == 0
-                                  ? const Color(0xFF2E7D32)
-                                  : Colors.grey[300],
-                              borderRadius: BorderRadius.circular(3),
+                        const SizedBox(height: 6),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              ayah['reference']!,
+                              style: GoogleFonts.inter(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF558B2F),
+                              ),
                             ),
-                          );
-                        }),
-                      ),
-                    ],
-                  ),
-                ],
+                            // Carousel Indicator dots
+                            Row(
+                              children: List.generate(_ayahs.length, (dotIndex) {
+                                bool isSelected = _selectedVersePage == dotIndex;
+                                return Container(
+                                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                                  width: isSelected ? 10 : 5,
+                                  height: 5,
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? const Color(0xFF2E7D32)
+                                        : Colors.grey[300],
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                );
+                              }),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ],
