@@ -122,7 +122,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   CircleAvatar(
                     radius: 28,
                     backgroundColor: AppTheme.softCream,
-                    backgroundImage: NetworkImage(_abdullahiAvatar),
+                    backgroundImage: NetworkImage(
+                      (user?.gender.toLowerCase() == 'groom' || user?.gender.toLowerCase() == 'male')
+                          ? _abdullahiAvatar
+                          : _aishaPhoto,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Column(
