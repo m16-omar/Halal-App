@@ -831,7 +831,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
             ),
             GestureDetector(
-              onTap: () {},
+              onTap: () => context.push('/search'),
               child: Row(
                 children: [
                   Text(
@@ -1150,7 +1150,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
             ),
             GestureDetector(
-              onTap: () {},
+              onTap: () => context.push('/counseling'),
               child: Row(
                 children: [
                   Text(
@@ -1321,9 +1321,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     'Tips & Articles',
                     style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
                   ),
-                  Text(
-                    'See all',
-                    style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.primaryGreen),
+                  GestureDetector(
+                    onTap: () => context.push('/counseling'),
+                    child: Text(
+                      'See all',
+                      style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.primaryGreen),
+                    ),
                   ),
                 ],
               ),
@@ -1361,9 +1364,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     'Community Posts',
                     style: GoogleFonts.outfit(fontSize: 15, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
                   ),
-                  Text(
-                    'See all',
-                    style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.primaryGreen),
+                  GestureDetector(
+                    onTap: _showCommunityPostsBottomSheet,
+                    child: Text(
+                      'See all',
+                      style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.primaryGreen),
+                    ),
                   ),
                 ],
               ),
@@ -1454,6 +1460,157 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showCommunityPostsBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.8,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (_, scrollController) => Container(
+          decoration: const BoxDecoration(
+            color: Color(0xFFF9FAF6),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Community Forum',
+                      style: GoogleFonts.outfit(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.darkCharcoal,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(),
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(20),
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.black.withOpacity(0.04)),
+                      ),
+                      child: Row(
+                        children: [
+                          const CircleAvatar(
+                            radius: 18,
+                            backgroundColor: AppTheme.softCream,
+                            backgroundImage: NetworkImage(
+                              'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80'
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextField(
+                              decoration: InputDecoration(
+                                hintText: 'Share a reflection or ask a question...',
+                                hintStyle: GoogleFonts.inter(fontSize: 12, color: AppTheme.secondaryGrey),
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.send, color: AppTheme.primaryGreen),
+                            onPressed: () {},
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'Recent Discussions',
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.darkCharcoal,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildCommunityCard(
+                      user: 'Masjid Central Minna',
+                      time: '2h ago',
+                      text: 'Jumu\'ah reminder: Marriage is Sunnah. Build your home on Imaan.',
+                      likes: '42',
+                      avatarBg: const Color(0xFFE8F5E9),
+                      avatarIcon: Icons.mosque_outlined,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildCommunityCard(
+                      user: 'Imam Usman',
+                      time: '6h ago',
+                      text: 'A beautiful reminder on patience in seeking a righteous spouse.',
+                      likes: '35',
+                      avatarBg: const Color(0xFFFFF3E0),
+                      avatarIcon: Icons.person_outline,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildCommunityCard(
+                      user: 'Halal Connect Events',
+                      time: '1d ago',
+                      text: 'Don\'t miss the next online matchmaking mixer this Saturday at 8 PM.',
+                      likes: '58',
+                      avatarBg: const Color(0xFFE3F2FD),
+                      avatarIcon: Icons.calendar_today_outlined,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildCommunityCard(
+                      user: 'Ustadha Zainab',
+                      time: '2d ago',
+                      text: 'Advice for brides: Establish clear expectations early and verify wali details.',
+                      likes: '29',
+                      avatarBg: const Color(0xFFF3E5F5),
+                      avatarIcon: Icons.school_outlined,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildCommunityCard(
+                      user: 'Brother Isah',
+                      time: '3d ago',
+                      text: 'Alhamdulillah, found my spouse on Halal Connect last month. Praying for everyone here!',
+                      likes: '87',
+                      avatarBg: const Color(0xFFE8F5E9),
+                      avatarIcon: Icons.favorite_outline,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
