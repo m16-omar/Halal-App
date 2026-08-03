@@ -97,6 +97,7 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
   }
 
   void _nextStep() {
+    FocusScope.of(context).unfocus();
     if (_currentStep == 1) {
       if (_ageController.text.isEmpty || _tribeController.text.isEmpty || _currentlyBasedInController.text.isEmpty) {
         _showErrorSnackBar('Please fill out all required personal fields.');
@@ -126,6 +127,7 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
   }
 
   void _prevStep() {
+    FocusScope.of(context).unfocus();
     if (_currentStep > 0) {
       setState(() {
         _currentStep--;
