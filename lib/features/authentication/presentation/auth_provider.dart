@@ -17,6 +17,8 @@ class SeekerUser {
   final int? age;
   final String? occupation;
   final String? education;
+  final String? islamicLevel;
+  final String? modeOfDressing;
 
   SeekerUser({
     required this.id,
@@ -33,6 +35,8 @@ class SeekerUser {
     this.age,
     this.occupation,
     this.education,
+    this.islamicLevel,
+    this.modeOfDressing,
   });
 
   factory SeekerUser.fromJson(Map<String, dynamic> json) {
@@ -51,6 +55,8 @@ class SeekerUser {
       age: json['age'] as int?,
       occupation: json['occupation'] as String?,
       education: json['education'] as String?,
+      islamicLevel: json['islamic_level'] as String?,
+      modeOfDressing: json['mode_of_dressing'] as String?,
     );
   }
 }
@@ -102,6 +108,8 @@ class AuthNotifier extends Notifier<AuthState> {
     if (user.age != null) await prefs.setInt('user_age', user.age!);
     if (user.occupation != null) await prefs.setString('user_occupation', user.occupation!);
     if (user.education != null) await prefs.setString('user_education', user.education!);
+    if (user.islamicLevel != null) await prefs.setString('user_islamic_level', user.islamicLevel!);
+    if (user.modeOfDressing != null) await prefs.setString('user_mode_of_dressing', user.modeOfDressing!);
   }
 
   Future<void> _clearUserFromPrefs() async {
@@ -120,6 +128,8 @@ class AuthNotifier extends Notifier<AuthState> {
     await prefs.remove('user_age');
     await prefs.remove('user_occupation');
     await prefs.remove('user_education');
+    await prefs.remove('user_islamic_level');
+    await prefs.remove('user_mode_of_dressing');
   }
 
   Future<bool> checkAutoLogin() async {
@@ -143,6 +153,8 @@ class AuthNotifier extends Notifier<AuthState> {
           age: prefs.getInt('user_age'),
           occupation: prefs.getString('user_occupation'),
           education: prefs.getString('user_education'),
+          islamicLevel: prefs.getString('user_islamic_level'),
+          modeOfDressing: prefs.getString('user_mode_of_dressing'),
         );
         state = AuthState(user: user);
         return true;
@@ -429,6 +441,8 @@ class AuthNotifier extends Notifier<AuthState> {
     int? age,
     String? occupation,
     String? education,
+    String? islamicLevel,
+    String? modeOfDressing,
   }) async {
     final currentUser = state.user;
     if (currentUser == null) return false;
@@ -445,6 +459,8 @@ class AuthNotifier extends Notifier<AuthState> {
         if (age != null) 'age': age,
         if (occupation != null) 'occupation': occupation,
         if (education != null) 'education': education,
+        if (islamicLevel != null) 'islamic_level': islamicLevel,
+        if (modeOfDressing != null) 'mode_of_dressing': modeOfDressing,
       });
 
       if (response['status'] == 'success') {

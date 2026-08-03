@@ -143,7 +143,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final photoUrl = isMale ? _yusufPhoto : _aishaPhoto;
     final fullName = user?.fullName ?? 'Aisha Usman';
     final locationText = user?.state != null && user!.state.isNotEmpty ? "${user.state}, Nigeria" : "Ilorin, Kwara State, Nigeria";
-    final educationText = isMale ? "Bachelor of Engineering • Software Engineer" : "Undergraduate – Biology • Student";
+    final education = user?.education != null && user!.education!.isNotEmpty ? user.education : (isMale ? "Bachelor of Engineering" : "Undergraduate – Biology");
+    final occupation = user?.occupation != null && user!.occupation!.isNotEmpty ? user.occupation : (isMale ? "Software Engineer" : "Student");
+    final educationText = "$education • $occupation";
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -220,7 +222,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  isMale ? '25 years • 12 Rajab 1443 AH' : '22 years • 15 Safar 1446 AH',
+                  "${user?.age ?? (isMale ? 25 : 22)} years • ${isMale ? '12 Rajab 1443 AH' : '15 Safar 1446 AH'}",
                   style: GoogleFonts.inter(fontSize: 11, color: Colors.white70),
                 ),
                 const SizedBox(height: 8),
@@ -229,9 +231,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   spacing: 4,
                   runSpacing: 4,
                   children: [
-                    _buildPillTag('Practicing Muslim', const Color(0xFF0A5C3D)),
+                    _buildPillTag(
+                      user?.islamicLevel != null && user!.islamicLevel!.isNotEmpty 
+                        ? user.islamicLevel! 
+                        : 'Practicing Muslim', 
+                      const Color(0xFF0A5C3D)
+                    ),
                     _buildPillTag('Sunni', const Color(0xFF10B981).withOpacity(0.2)),
-                    _buildPillTag(isMale ? 'Bearded' : 'Niqabi', const Color(0xFF6B21A8)),
+                    _buildPillTag(
+                      user?.modeOfDressing != null && user!.modeOfDressing!.isNotEmpty 
+                        ? user.modeOfDressing! 
+                        : (isMale ? 'Bearded' : 'Niqabi'), 
+                      const Color(0xFF6B21A8)
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
