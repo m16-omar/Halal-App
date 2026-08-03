@@ -19,6 +19,7 @@ class _CounselingScreenState extends ConsumerState<CounselingScreen> {
   Timer? _verseCarouselTimer;
   int _selectedVersePage = 0;
   String? _selectedCategory;
+  final List<Map<String, dynamic>> _bookedSessions = [];
 
   final List<Map<String, String>> _ayahs = [
     {
@@ -816,6 +817,303 @@ class _CounselingScreenState extends ConsumerState<CounselingScreen> {
     );
   }
 
+  void _showBookSessionBottomSheet() {
+    String selectedCounselor = 'Imam Sulaiman';
+    String selectedType = 'Pre-Marital Counseling';
+    int selectedDateIndex = 0;
+    String selectedTime = '10:00 AM';
+
+    final List<Map<String, String>> counselors = [
+      {'name': 'Imam Sulaiman', 'title': 'Family Counselor', 'avatar': 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80'},
+      {'name': 'Sister Amina', 'title': 'Pre-Marital Advisor', 'avatar': 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'},
+      {'name': 'Mufti Tariq', 'title': 'Marital Dispute Scholar', 'avatar': 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80'},
+    ];
+
+    final List<String> dates = [
+      'Tomorrow',
+      'Wed, 13 May',
+      'Thu, 14 May',
+      'Fri, 15 May',
+      'Sat, 16 May',
+    ];
+
+    final List<String> times = [
+      '09:00 AM',
+      '10:30 AM',
+      '01:00 PM',
+      '03:30 PM',
+      '05:00 PM',
+    ];
+
+    final TextEditingController notesController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: EdgeInsets.only(
+            top: 24,
+            left: 24,
+            right: 24,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Book Counseling Session',
+                      style: GoogleFonts.outfit(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.darkCharcoal,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const Divider(),
+                const SizedBox(height: 12),
+                Text(
+                  'Select Counselor',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.darkCharcoal,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: selectedCounselor,
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.person_outline),
+                  ),
+                  items: counselors.map((c) => DropdownMenuItem(
+                    value: c['name'],
+                    child: Text('${c['name']} (${c['title']})', style: GoogleFonts.inter(fontSize: 14)),
+                  )).toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setModalState(() {
+                        selectedCounselor = val;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Session Type',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.darkCharcoal,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: selectedType,
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.favorite_border),
+                  ),
+                  items: [
+                    'Pre-Marital Counseling',
+                    'Conflict Resolution',
+                    'Family Counseling',
+                    'General Consultation'
+                  ].map((t) => DropdownMenuItem(
+                    value: t,
+                    child: Text(t, style: GoogleFonts.inter(fontSize: 14)),
+                  )).toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setModalState(() {
+                        selectedType = val;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Select Date',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.darkCharcoal,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 40,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: dates.length,
+                    itemBuilder: (context, idx) {
+                      final isSelected = selectedDateIndex == idx;
+                      return GestureDetector(
+                        onTap: () {
+                          setModalState(() {
+                            selectedDateIndex = idx;
+                          });
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: isSelected ? AppTheme.primaryGreen : Colors.grey[100],
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            dates[idx],
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: isSelected ? Colors.white : AppTheme.darkCharcoal,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Select Time Slot',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.darkCharcoal,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 40,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: times.length,
+                    itemBuilder: (context, idx) {
+                      final isSelected = selectedTime == times[idx];
+                      return GestureDetector(
+                        onTap: () {
+                          setModalState(() {
+                            selectedTime = times[idx];
+                          });
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: isSelected ? AppTheme.primaryGreen : Colors.grey[100],
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            times[idx],
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: isSelected ? Colors.white : AppTheme.darkCharcoal,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Add Notes (Optional)',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.darkCharcoal,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: notesController,
+                  maxLines: 2,
+                  decoration: const InputDecoration(
+                    hintText: 'Briefly mention what you would like to discuss...',
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryGreen,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: () {
+                      final counselorObj = counselors.firstWhere((c) => c['name'] == selectedCounselor);
+                      final String dateStr = dates[selectedDateIndex] == 'Tomorrow' ? 'Tue, 12 May 2026' : '${dates[selectedDateIndex]} 2026';
+                      
+                      setState(() {
+                        _bookedSessions.add({
+                          'title': 'Session with $selectedCounselor',
+                          'topic': selectedType,
+                          'date': dateStr,
+                          'time': '$selectedTime - ${selectedTime.contains('30') ? '11:30 AM' : '11:00 AM'}',
+                          'avatar': counselorObj['avatar'],
+                          'type': 'Online',
+                        });
+                      });
+
+                      Navigator.pop(context);
+
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          title: Row(
+                            children: [
+                              const Icon(Icons.check_circle, color: AppTheme.primaryGreen),
+                              const SizedBox(width: 8),
+                              Text('Booking Confirmed', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          content: Text(
+                            'Your counseling session with $selectedCounselor has been scheduled for $dateStr at $selectedTime.\n\nA link to join the online video session and a calendar invite have been sent to your email.',
+                            style: GoogleFonts.inter(fontSize: 14, color: AppTheme.darkCharcoal, height: 1.4),
+                          ),
+                          actions: [
+                            TextButton(
+                              child: Text('Great', style: GoogleFonts.inter(color: AppTheme.primaryGreen, fontWeight: FontWeight.bold)),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'Confirm Booking',
+                      style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   // --- SCHEDULE BANNER ---
   Widget _buildScheduleBanner() {
     return Padding(
@@ -853,7 +1151,7 @@ class _CounselingScreenState extends ConsumerState<CounselingScreen> {
                   ),
                   const SizedBox(height: 12),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: _showBookSessionBottomSheet,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF042415),
                       foregroundColor: Colors.white,
@@ -1537,6 +1835,18 @@ class _CounselingScreenState extends ConsumerState<CounselingScreen> {
 
   // --- UPCOMING SESSIONS SECTION ---
   Widget _buildUpcomingSessionsSection() {
+    final List<Map<String, dynamic>> allSessions = [
+      {
+        'title': 'Session with Imam Abdullahi',
+        'topic': 'Preparing for a Blessed Marriage',
+        'date': 'Sat, 17 May 2026',
+        'time': '04:00 PM WAT',
+        'avatar': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+        'type': 'Online',
+      },
+      ..._bookedSessions,
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1567,166 +1877,197 @@ class _CounselingScreenState extends ConsumerState<CounselingScreen> {
             ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.black.withOpacity(0.04)),
-            ),
-            child: Row(
-              children: [
-                // Circular portrait of Imam Abdullahi
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(30),
-                  child: Image.network(
-                    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
-                    errorBuilder: (c, e, s) => Container(
-                      width: 50,
-                      height: 50,
-                      color: Colors.grey[200],
-                      child: const Icon(Icons.person, color: Colors.grey),
-                    ),
+        ...allSessions.map((session) {
+          final isImageNetwork = session['avatar']!.startsWith('http');
+          return Padding(
+            padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 12.0),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.black.withOpacity(0.04)),
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: isImageNetwork
+                        ? Image.network(
+                            session['avatar']!,
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                            errorBuilder: (c, e, s) => Container(
+                              width: 50,
+                              height: 50,
+                              color: Colors.grey[200],
+                              child: const Icon(Icons.person, color: Colors.grey),
+                            ),
+                          )
+                        : Container(
+                            width: 50,
+                            height: 50,
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.person, color: Colors.grey),
+                          ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                // Center info
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'Session with Imam Abdullahi',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: AppTheme.darkCharcoal,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                session['title']!,
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppTheme.darkCharcoal,
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          const SizedBox(width: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE8F5E9),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 4,
-                                  height: 4,
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFF2E7D32),
-                                    shape: BoxShape.circle,
+                            const SizedBox(width: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE8F5E9),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 4,
+                                    height: 4,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFF2E7D32),
+                                      shape: BoxShape.circle,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'Online',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 7,
-                                    color: const Color(0xFF2E7D32),
-                                    fontWeight: FontWeight.bold,
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    session['type']!,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 7,
+                                      color: const Color(0xFF2E7D32),
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Topic: Preparing for a Blessed Marriage',
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          color: AppTheme.secondaryGrey,
+                          ],
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.calendar_today,
-                            size: 10,
-                            color: AppTheme.primaryGreen,
+                        const SizedBox(height: 2),
+                        Text(
+                          'Topic: ${session['topic']}',
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            color: AppTheme.secondaryGrey,
                           ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Sat, 17 May 2026',
-                            style: GoogleFonts.inter(
-                              fontSize: 9,
-                              color: AppTheme.darkCharcoal,
-                              fontWeight: FontWeight.bold,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.calendar_today,
+                              size: 10,
+                              color: AppTheme.primaryGreen,
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                          const Icon(
-                            Icons.access_time,
-                            size: 10,
-                            color: AppTheme.primaryGreen,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '04:00 PM WAT',
-                            style: GoogleFonts.inter(
-                              fontSize: 9,
-                              color: AppTheme.darkCharcoal,
-                              fontWeight: FontWeight.bold,
+                            const SizedBox(width: 4),
+                            Text(
+                              session['date']!,
+                              style: GoogleFonts.inter(
+                                fontSize: 9,
+                                color: AppTheme.darkCharcoal,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
+                            const SizedBox(width: 10),
+                            const Icon(
+                              Icons.access_time,
+                              size: 10,
+                              color: AppTheme.primaryGreen,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              session['time']!,
+                              style: GoogleFonts.inter(
+                                fontSize: 9,
+                                color: AppTheme.darkCharcoal,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          title: Row(
+                            children: [
+                              const Icon(Icons.videocam, color: AppTheme.primaryGreen),
+                              const SizedBox(width: 8),
+                              Text('Connecting...', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
+                            ],
                           ),
-                        ],
+                          content: Text(
+                            'Connecting to the secure counseling video channel. Please ensure your microphone and camera are enabled.\n\nLink: https://meet.halalconnect.app/counseling/${session['title'].hashCode.abs()}',
+                            style: GoogleFonts.inter(fontSize: 14, color: AppTheme.darkCharcoal, height: 1.4),
+                          ),
+                          actions: [
+                            TextButton(
+                              child: Text('Close', style: GoogleFonts.inter(color: AppTheme.primaryGreen, fontWeight: FontWeight.bold)),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.videocam_outlined,
+                      size: 12,
+                      color: Color(0xFF042415),
+                    ),
+                    label: Text(
+                      'Join Session',
+                      style: GoogleFonts.inter(
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF042415),
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                // Join Session Action Button
-                OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.videocam_outlined,
-                    size: 12,
-                    color: Color(0xFF042415),
-                  ),
-                  label: Text(
-                    'Join Session',
-                    style: GoogleFonts.inter(
-                      fontSize: 9,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF042415),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFF042415), width: 1),
+                      minimumSize: Size.zero,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFF042415), width: 1),
-                    minimumSize: Size.zero,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 8,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        }).toList(),
       ],
     );
   }
