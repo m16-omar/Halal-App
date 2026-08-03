@@ -567,7 +567,7 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
           decoration: BoxDecoration(
             color: const Color(0xFFF9FAF6),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey[150]!),
+            border: Border.all(color: Colors.grey[200]!),
           ),
           child: Row(
             children: [
