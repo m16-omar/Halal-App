@@ -16,7 +16,7 @@ class PremiumUpgradeScreen extends ConsumerStatefulWidget {
 
 class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
   int _currentStep = 0;
-  final int _totalSteps = 6;
+  final int _totalSteps = 7;
   int _selectedPlan = 1; // Default to Premium (Recommended)
 
   // Countdown Timer state
@@ -48,6 +48,17 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
   final _aboutMeController = TextEditingController();
   final _spouseAgeRangeController = TextEditingController();
   final _spouseDesiredQualitiesController = TextEditingController();
+
+  // STEP 2: HEALTH & LIFESTYLE DETAILS
+  String _bloodGroup = 'A+';
+  String _genotype = 'AA';
+  final _healthStatusController = TextEditingController();
+  String _islamicLevelVal = 'Practising';
+  String _modeOfDressingVal = 'Hijab (Full covering)';
+  final _appearanceController = TextEditingController();
+  String _openToPolygamy = 'No';
+  String _willingToRelocate = 'No';
+  String _marriageTimeline = 'As soon as possible';
 
   @override
   void initState() {
@@ -100,6 +111,34 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
           if (user.spouseDesiredQualities != null) {
             _spouseDesiredQualitiesController.text = user.spouseDesiredQualities!;
           }
+          // Pre-fill Health & Lifestyle fields
+          if (user.bloodGroup != null && user.bloodGroup!.isNotEmpty) {
+            _bloodGroup = user.bloodGroup!;
+          }
+          if (user.genotype != null && user.genotype!.isNotEmpty) {
+            _genotype = user.genotype!;
+          }
+          if (user.healthStatus != null) {
+            _healthStatusController.text = user.healthStatus!;
+          }
+          if (user.islamicLevel != null && user.islamicLevel!.isNotEmpty) {
+            _islamicLevelVal = user.islamicLevel!;
+          }
+          if (user.modeOfDressing != null && user.modeOfDressing!.isNotEmpty) {
+            _modeOfDressingVal = user.modeOfDressing!;
+          }
+          if (user.appearance != null) {
+            _appearanceController.text = user.appearance!;
+          }
+          if (user.openToPolygamy != null && user.openToPolygamy!.isNotEmpty) {
+            _openToPolygamy = user.openToPolygamy!;
+          }
+          if (user.willingToRelocate != null && user.willingToRelocate!.isNotEmpty) {
+            _willingToRelocate = user.willingToRelocate!;
+          }
+          if (user.marriageTimeline != null && user.marriageTimeline!.isNotEmpty) {
+            _marriageTimeline = user.marriageTimeline!;
+          }
         });
       }
     });
@@ -122,6 +161,8 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
     _aboutMeController.dispose();
     _spouseAgeRangeController.dispose();
     _spouseDesiredQualitiesController.dispose();
+    _healthStatusController.dispose();
+    _appearanceController.dispose();
     super.dispose();
   }
 
@@ -145,13 +186,13 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
         return;
       }
     }
-    if (_currentStep == 2) {
+    if (_currentStep == 3) {
       if (_idNumberController.text.isEmpty || !_hasUploadedDoc) {
         _showErrorSnackBar('Please enter your ID number and upload a verification photo.');
         return;
       }
     }
-    if (_currentStep == 3) {
+    if (_currentStep == 4) {
       if (_cardNumberController.text.length < 16 || _cardExpiryController.text.isEmpty || _cardCvvController.text.length < 3) {
         _showErrorSnackBar('Please enter valid credit card details.');
         return;
@@ -217,6 +258,15 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
         aboutMe: _aboutMeController.text.trim(),
         spouseAgeRange: _spouseAgeRangeController.text.trim(),
         spouseDesiredQualities: _spouseDesiredQualitiesController.text.trim(),
+        bloodGroup: _bloodGroup,
+        genotype: _genotype,
+        healthStatus: _healthStatusController.text.trim(),
+        islamicLevel: _islamicLevelVal,
+        modeOfDressing: _modeOfDressingVal,
+        appearance: _appearanceController.text.trim(),
+        openToPolygamy: _openToPolygamy,
+        willingToRelocate: _willingToRelocate,
+        marriageTimeline: _marriageTimeline,
       );
 
       if (mounted) {
@@ -352,14 +402,14 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
 
   // --- PROGRESS TRACKER BAR ---
   Widget _buildProgressSteps() {
-    final stepLabels = ['Choose Plan', 'Account', 'Verify', 'Payment', 'Review', 'Complete'];
+    final stepLabels = ['Choose Plan', 'Account', 'Lifestyle', 'Verify', 'Payment', 'Review', 'Complete'];
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
       color: Colors.white,
       child: Column(
         children: [
           Row(
-            children: List.generate(11, (index) {
+            children: List.generate(13, (index) {
               if (index % 2 == 0) {
                 // Circle Step
                 final stepNum = index ~/ 2;
@@ -491,13 +541,15 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
       case 1:
         return _buildStep1Personal();
       case 2:
-        return _buildStep2IDVerification();
+        return _buildStep2Lifestyle();
       case 3:
-        return _buildStep3PaymentGateway();
+        return _buildStep3IDVerification();
       case 4:
-        return _buildStep4Review();
+        return _buildStep4PaymentGateway();
       case 5:
-        return _buildStep5Complete();
+        return _buildStep5Review();
+      case 6:
+        return _buildStep6Complete();
       default:
         return const SizedBox.shrink();
     }
@@ -907,8 +959,44 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
     );
   }
 
-  // ================= STEP 2: ID VERIFICATION (Verify) =================
-  Widget _buildStep2IDVerification() {
+  // ================= STEP 2: HEALTH & LIFESTYLE =================
+  Widget _buildStep2Lifestyle() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildStepTitle('Health & Lifestyle', 'Share your health info and religious lifestyle to help find your ideal match.'),
+        _buildDropdown('Blood Group', _bloodGroup, ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'], (val) {
+          if (val != null) setState(() => _bloodGroup = val);
+        }),
+        _buildDropdown('Genotype', _genotype, ['AA', 'AS', 'SS', 'AC', 'SC'], (val) {
+          if (val != null) setState(() => _genotype = val);
+        }),
+        _buildTextField(_healthStatusController, 'Health Status', 'e.g. Healthy, Diabetic, Asthmatic', TextInputType.text),
+        _buildTextField(_appearanceController, 'Appearance / Build', 'e.g. Slim, Athletic, Average, Tall', TextInputType.text),
+        _buildDropdown('Islamic Practice Level', _islamicLevelVal,
+            ['Beginner', 'Moderate', 'Practising', 'Strictly Practising', 'Sufi'], (val) {
+          if (val != null) setState(() => _islamicLevelVal = val);
+        }),
+        _buildDropdown('Mode of Dressing', _modeOfDressingVal,
+            ['Niqab', 'Hijab (Full covering)', 'Hijab (Modest)', 'Traditional/Modest dress', 'Islamic dress (male)', 'Smart/Modest casual', 'Casual'], (val) {
+          if (val != null) setState(() => _modeOfDressingVal = val);
+        }),
+        _buildDropdown('Open to Polygamy', _openToPolygamy, ['Yes', 'No', 'Not sure'], (val) {
+          if (val != null) setState(() => _openToPolygamy = val);
+        }),
+        _buildDropdown('Willing to Relocate', _willingToRelocate, ['Yes', 'No', 'Maybe'], (val) {
+          if (val != null) setState(() => _willingToRelocate = val);
+        }),
+        _buildDropdown('Marriage Timeline', _marriageTimeline,
+            ['As soon as possible', 'Within 6 months', 'Within 1 year', '1–2 years', 'Not sure yet'], (val) {
+          if (val != null) setState(() => _marriageTimeline = val);
+        }),
+      ],
+    );
+  }
+
+  // ================= STEP 3: ID VERIFICATION (Verify) =================
+  Widget _buildStep3IDVerification() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -971,8 +1059,8 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
     );
   }
 
-  // ================= STEP 3: PAYMENT GATEWAY (Payment) =================
-  Widget _buildStep3PaymentGateway() {
+  // ================= STEP 4: PAYMENT GATEWAY (Payment) =================
+  Widget _buildStep4PaymentGateway() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1025,8 +1113,8 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
     );
   }
 
-  // ================= STEP 4: REVIEW =================
-  Widget _buildStep4Review() {
+  // ================= STEP 5: REVIEW =================
+  Widget _buildStep5Review() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1038,6 +1126,15 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
         _buildReviewRow('Current Base', _currentlyBasedInController.text),
         _buildReviewRow('Marital Status', _maritalStatus),
         _buildReviewRow('Occupation', _occupationController.text),
+        _buildReviewRow('Blood Group', _bloodGroup),
+        _buildReviewRow('Genotype', _genotype),
+        _buildReviewRow('Health Status', _healthStatusController.text),
+        _buildReviewRow('Appearance', _appearanceController.text),
+        _buildReviewRow('Islamic Level', _islamicLevelVal),
+        _buildReviewRow('Mode of Dressing', _modeOfDressingVal),
+        _buildReviewRow('Open to Polygamy', _openToPolygamy),
+        _buildReviewRow('Willing to Relocate', _willingToRelocate),
+        _buildReviewRow('Marriage Timeline', _marriageTimeline),
         _buildReviewRow('ID Document', '$_docType (NIN verified)'),
         const SizedBox(height: 16),
         Container(
@@ -1076,8 +1173,8 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
     );
   }
 
-  // ================= STEP 5: COMPLETE =================
-  Widget _buildStep5Complete() {
+  // ================= STEP 6: COMPLETE =================
+  Widget _buildStep6Complete() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

@@ -27,6 +27,13 @@ class SeekerUser {
   final String? aboutMe;
   final String? spouseAgeRange;
   final String? spouseDesiredQualities;
+  final String? bloodGroup;
+  final String? genotype;
+  final String? healthStatus;
+  final String? appearance;
+  final String? openToPolygamy;
+  final String? willingToRelocate;
+  final String? marriageTimeline;
 
   SeekerUser({
     required this.id,
@@ -53,6 +60,13 @@ class SeekerUser {
     this.aboutMe,
     this.spouseAgeRange,
     this.spouseDesiredQualities,
+    this.bloodGroup,
+    this.genotype,
+    this.healthStatus,
+    this.appearance,
+    this.openToPolygamy,
+    this.willingToRelocate,
+    this.marriageTimeline,
   });
 
   factory SeekerUser.fromJson(Map<String, dynamic> json) {
@@ -81,6 +95,13 @@ class SeekerUser {
       aboutMe: json['about_me'] as String?,
       spouseAgeRange: json['spouse_age_range'] as String?,
       spouseDesiredQualities: json['spouse_desired_qualities'] as String?,
+      bloodGroup: json['blood_group'] as String?,
+      genotype: json['genotype'] as String?,
+      healthStatus: json['health_status'] as String?,
+      appearance: json['appearance'] as String?,
+      openToPolygamy: json['open_to_polygamy'] as String?,
+      willingToRelocate: json['willing_to_relocate'] as String?,
+      marriageTimeline: json['marriage_timeline'] as String?,
     );
   }
 }
@@ -142,6 +163,13 @@ class AuthNotifier extends Notifier<AuthState> {
     if (user.aboutMe != null) await prefs.setString('user_about_me', user.aboutMe!);
     if (user.spouseAgeRange != null) await prefs.setString('user_spouse_age_range', user.spouseAgeRange!);
     if (user.spouseDesiredQualities != null) await prefs.setString('user_spouse_desired_qualities', user.spouseDesiredQualities!);
+    if (user.bloodGroup != null) await prefs.setString('user_blood_group', user.bloodGroup!);
+    if (user.genotype != null) await prefs.setString('user_genotype', user.genotype!);
+    if (user.healthStatus != null) await prefs.setString('user_health_status', user.healthStatus!);
+    if (user.appearance != null) await prefs.setString('user_appearance', user.appearance!);
+    if (user.openToPolygamy != null) await prefs.setString('user_open_to_polygamy', user.openToPolygamy!);
+    if (user.willingToRelocate != null) await prefs.setString('user_willing_to_relocate', user.willingToRelocate!);
+    if (user.marriageTimeline != null) await prefs.setString('user_marriage_timeline', user.marriageTimeline!);
   }
 
   Future<void> _clearUserFromPrefs() async {
@@ -170,6 +198,13 @@ class AuthNotifier extends Notifier<AuthState> {
     await prefs.remove('user_about_me');
     await prefs.remove('user_spouse_age_range');
     await prefs.remove('user_spouse_desired_qualities');
+    await prefs.remove('user_blood_group');
+    await prefs.remove('user_genotype');
+    await prefs.remove('user_health_status');
+    await prefs.remove('user_appearance');
+    await prefs.remove('user_open_to_polygamy');
+    await prefs.remove('user_willing_to_relocate');
+    await prefs.remove('user_marriage_timeline');
   }
 
   Future<bool> checkAutoLogin() async {
@@ -203,6 +238,13 @@ class AuthNotifier extends Notifier<AuthState> {
           aboutMe: prefs.getString('user_about_me'),
           spouseAgeRange: prefs.getString('user_spouse_age_range'),
           spouseDesiredQualities: prefs.getString('user_spouse_desired_qualities'),
+          bloodGroup: prefs.getString('user_blood_group'),
+          genotype: prefs.getString('user_genotype'),
+          healthStatus: prefs.getString('user_health_status'),
+          appearance: prefs.getString('user_appearance'),
+          openToPolygamy: prefs.getString('user_open_to_polygamy'),
+          willingToRelocate: prefs.getString('user_willing_to_relocate'),
+          marriageTimeline: prefs.getString('user_marriage_timeline'),
         );
         state = AuthState(user: user);
         return true;
@@ -441,6 +483,15 @@ class AuthNotifier extends Notifier<AuthState> {
     required String aboutMe,
     required String spouseAgeRange,
     required String spouseDesiredQualities,
+    String bloodGroup = '',
+    String genotype = '',
+    String healthStatus = '',
+    String islamicLevel = '',
+    String modeOfDressing = '',
+    String appearance = '',
+    String openToPolygamy = 'No',
+    String willingToRelocate = 'No',
+    String marriageTimeline = '',
   }) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
@@ -457,6 +508,15 @@ class AuthNotifier extends Notifier<AuthState> {
         'about_me': aboutMe,
         'spouse_age_range': spouseAgeRange,
         'spouse_desired_qualities': spouseDesiredQualities,
+        'blood_group': bloodGroup,
+        'genotype': genotype,
+        'health_status': healthStatus,
+        'islamic_level': islamicLevel,
+        'mode_of_dressing': modeOfDressing,
+        'appearance': appearance,
+        'open_to_polygamy': openToPolygamy,
+        'willing_to_relocate': willingToRelocate,
+        'marriage_timeline': marriageTimeline,
       });
 
       if (response['status'] == 'success') {
