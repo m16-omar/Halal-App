@@ -51,11 +51,7 @@ class AuthState {
   final SeekerUser? user;
   final String? errorMessage;
 
-  AuthState({
-    this.isLoading = false,
-    this.user,
-    this.errorMessage,
-  });
+  AuthState({this.isLoading = false, this.user, this.errorMessage});
 
   AuthState copyWith({
     bool? isLoading,
@@ -90,8 +86,10 @@ class AuthNotifier extends Notifier<AuthState> {
     await prefs.setString('user_phone_number', user.phoneNumber);
     await prefs.setString('user_role', user.role);
     if (user.email != null) await prefs.setString('user_email', user.email!);
-    if (user.relationship != null) await prefs.setString('user_relationship', user.relationship!);
-    if (user.wardName != null) await prefs.setString('user_ward_name', user.wardName!);
+    if (user.relationship != null)
+      await prefs.setString('user_relationship', user.relationship!);
+    if (user.wardName != null)
+      await prefs.setString('user_ward_name', user.wardName!);
   }
 
   Future<void> _clearUserFromPrefs() async {
@@ -158,7 +156,12 @@ class AuthNotifier extends Notifier<AuthState> {
     }
   }
 
-  Future<bool> login({String? email, String? password, String? phone, String? otp}) async {
+  Future<bool> login({
+    String? email,
+    String? password,
+    String? phone,
+    String? otp,
+  }) async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       final Map<String, dynamic> body = {};
@@ -184,7 +187,9 @@ class AuthNotifier extends Notifier<AuthState> {
         return false;
       }
     } catch (e) {
-      state = AuthState(errorMessage: e.toString().replaceAll('Exception: ', ''));
+      state = AuthState(
+        errorMessage: e.toString().replaceAll('Exception: ', ''),
+      );
       return false;
     }
   }
@@ -194,7 +199,10 @@ class AuthNotifier extends Notifier<AuthState> {
     state = AuthState();
   }
 
-  void setTemporaryUser({required String fullName, String status = 'Unverified'}) {
+  void setTemporaryUser({
+    required String fullName,
+    String status = 'Unverified',
+  }) {
     state = AuthState(
       user: SeekerUser(
         id: -1,
@@ -254,11 +262,15 @@ class AuthNotifier extends Notifier<AuthState> {
         state = AuthState(user: user);
         return true;
       } else {
-        state = AuthState(errorMessage: response['message'] ?? 'Registration failed');
+        state = AuthState(
+          errorMessage: response['message'] ?? 'Registration failed',
+        );
         return false;
       }
     } catch (e) {
-      state = AuthState(errorMessage: e.toString().replaceAll('Exception: ', ''));
+      state = AuthState(
+        errorMessage: e.toString().replaceAll('Exception: ', ''),
+      );
       return false;
     }
   }
@@ -325,11 +337,15 @@ class AuthNotifier extends Notifier<AuthState> {
         state = AuthState(user: user);
         return true;
       } else {
-        state = AuthState(errorMessage: response['message'] ?? 'Verification submission failed');
+        state = AuthState(
+          errorMessage: response['message'] ?? 'Verification submission failed',
+        );
         return false;
       }
     } catch (e) {
-      state = AuthState(errorMessage: e.toString().replaceAll('Exception: ', ''));
+      state = AuthState(
+        errorMessage: e.toString().replaceAll('Exception: ', ''),
+      );
       return false;
     }
   }
@@ -386,8 +402,6 @@ class AuthNotifier extends Notifier<AuthState> {
       return false;
     }
   }
-
-
 
   Future<void> refreshUserStatus() async {
     final currentUser = state.user;
