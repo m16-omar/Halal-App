@@ -19,6 +19,14 @@ class SeekerUser {
   final String? education;
   final String? islamicLevel;
   final String? modeOfDressing;
+  final String? stateOfOrigin;
+  final String? currentlyBasedIn;
+  final String? tribe;
+  final String? maritalStatus;
+  final String? children;
+  final String? aboutMe;
+  final String? spouseAgeRange;
+  final String? spouseDesiredQualities;
 
   SeekerUser({
     required this.id,
@@ -37,6 +45,14 @@ class SeekerUser {
     this.education,
     this.islamicLevel,
     this.modeOfDressing,
+    this.stateOfOrigin,
+    this.currentlyBasedIn,
+    this.tribe,
+    this.maritalStatus,
+    this.children,
+    this.aboutMe,
+    this.spouseAgeRange,
+    this.spouseDesiredQualities,
   });
 
   factory SeekerUser.fromJson(Map<String, dynamic> json) {
@@ -57,6 +73,14 @@ class SeekerUser {
       education: json['education'] as String?,
       islamicLevel: json['islamic_level'] as String?,
       modeOfDressing: json['mode_of_dressing'] as String?,
+      stateOfOrigin: json['state_of_origin'] as String?,
+      currentlyBasedIn: json['currently_based_in'] as String?,
+      tribe: json['tribe'] as String?,
+      maritalStatus: json['marital_status'] as String?,
+      children: json['children'] as String?,
+      aboutMe: json['about_me'] as String?,
+      spouseAgeRange: json['spouse_age_range'] as String?,
+      spouseDesiredQualities: json['spouse_desired_qualities'] as String?,
     );
   }
 }
@@ -110,6 +134,14 @@ class AuthNotifier extends Notifier<AuthState> {
     if (user.education != null) await prefs.setString('user_education', user.education!);
     if (user.islamicLevel != null) await prefs.setString('user_islamic_level', user.islamicLevel!);
     if (user.modeOfDressing != null) await prefs.setString('user_mode_of_dressing', user.modeOfDressing!);
+    if (user.stateOfOrigin != null) await prefs.setString('user_state_of_origin', user.stateOfOrigin!);
+    if (user.currentlyBasedIn != null) await prefs.setString('user_currently_based_in', user.currentlyBasedIn!);
+    if (user.tribe != null) await prefs.setString('user_tribe', user.tribe!);
+    if (user.maritalStatus != null) await prefs.setString('user_marital_status', user.maritalStatus!);
+    if (user.children != null) await prefs.setString('user_children', user.children!);
+    if (user.aboutMe != null) await prefs.setString('user_about_me', user.aboutMe!);
+    if (user.spouseAgeRange != null) await prefs.setString('user_spouse_age_range', user.spouseAgeRange!);
+    if (user.spouseDesiredQualities != null) await prefs.setString('user_spouse_desired_qualities', user.spouseDesiredQualities!);
   }
 
   Future<void> _clearUserFromPrefs() async {
@@ -130,6 +162,14 @@ class AuthNotifier extends Notifier<AuthState> {
     await prefs.remove('user_education');
     await prefs.remove('user_islamic_level');
     await prefs.remove('user_mode_of_dressing');
+    await prefs.remove('user_state_of_origin');
+    await prefs.remove('user_currently_based_in');
+    await prefs.remove('user_tribe');
+    await prefs.remove('user_marital_status');
+    await prefs.remove('user_children');
+    await prefs.remove('user_about_me');
+    await prefs.remove('user_spouse_age_range');
+    await prefs.remove('user_spouse_desired_qualities');
   }
 
   Future<bool> checkAutoLogin() async {
@@ -155,6 +195,14 @@ class AuthNotifier extends Notifier<AuthState> {
           education: prefs.getString('user_education'),
           islamicLevel: prefs.getString('user_islamic_level'),
           modeOfDressing: prefs.getString('user_mode_of_dressing'),
+          stateOfOrigin: prefs.getString('user_state_of_origin'),
+          currentlyBasedIn: prefs.getString('user_currently_based_in'),
+          tribe: prefs.getString('user_tribe'),
+          maritalStatus: prefs.getString('user_marital_status'),
+          children: prefs.getString('user_children'),
+          aboutMe: prefs.getString('user_about_me'),
+          spouseAgeRange: prefs.getString('user_spouse_age_range'),
+          spouseDesiredQualities: prefs.getString('user_spouse_desired_qualities'),
         );
         state = AuthState(user: user);
         return true;

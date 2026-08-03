@@ -62,6 +62,47 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
         _timer.cancel();
       }
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = ref.read(authProvider).user;
+      if (user != null) {
+        setState(() {
+          if (user.age != null && user.age! > 0) {
+            _ageController.text = user.age.toString();
+          }
+          if (user.tribe != null) {
+            _tribeController.text = user.tribe!;
+          }
+          if (user.stateOfOrigin != null) {
+            _stateOfOriginController.text = user.stateOfOrigin!;
+          }
+          if (user.currentlyBasedIn != null) {
+            _currentlyBasedInController.text = user.currentlyBasedIn!;
+          }
+          if (user.maritalStatus != null && user.maritalStatus!.isNotEmpty) {
+            _maritalStatus = user.maritalStatus!;
+          }
+          if (user.children != null) {
+            _childrenController.text = user.children!;
+          }
+          if (user.education != null && user.education!.isNotEmpty) {
+            _education = user.education!;
+          }
+          if (user.occupation != null) {
+            _occupationController.text = user.occupation!;
+          }
+          if (user.aboutMe != null) {
+            _aboutMeController.text = user.aboutMe!;
+          }
+          if (user.spouseAgeRange != null) {
+            _spouseAgeRangeController.text = user.spouseAgeRange!;
+          }
+          if (user.spouseDesiredQualities != null) {
+            _spouseDesiredQualitiesController.text = user.spouseDesiredQualities!;
+          }
+        });
+      }
+    });
   }
 
   @override

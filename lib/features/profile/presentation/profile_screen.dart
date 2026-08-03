@@ -22,6 +22,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final user = ref.watch(authProvider).user;
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAF6),
       body: Column(
@@ -37,7 +38,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       onRefresh: () async {
                         await Future.delayed(const Duration(seconds: 1));
                         if (mounted) {
-                          setState(() {});
+                           setState(() {});
                         }
                       },
                       color: AppTheme.primaryGreen,
@@ -47,10 +48,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           children: [
                             _buildSeekerProfileCard(),
                             _buildSubActionsRow(),
-                            _buildPremiumVerificationBanner(),
+                            if (user?.status == 'Verified Premium')
+                              _buildPremiumVerificationBanner(),
                             _buildYourActivitySection(),
                             _buildCompleteYourProfileChecklist(),
-                            _buildGoPremiumBanner(),
+                            if (user?.status != 'Verified Premium')
+                              _buildGoPremiumBanner(),
                             _buildAccountPreferencesSection(),
                             const SizedBox(height: 24),
                           ],
@@ -314,7 +317,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
               const SizedBox(height: 12),
               GestureDetector(
-                onTap: () {},
+                onTap: () => context.push('/premium-upgrade'),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                   decoration: BoxDecoration(
@@ -380,11 +383,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           physics: const BouncingScrollPhysics(),
           child: Row(
             children: [
-              _buildSubActionItem(Icons.person_outline, 'Edit Profile', onTap: () {}),
+              _buildSubActionItem(Icons.person_outline, 'Edit Profile', onTap: () => context.push('/premium-upgrade')),
               _buildSubActionItem(Icons.verified_user_outlined, 'Verification', onTap: () {
                 context.push('/verification');
               }),
-              _buildSubActionItem(Icons.image_outlined, 'Photos', badgeCount: 12, onTap: () {}),
+              _buildSubActionItem(Icons.image_outlined, 'Photos', badgeCount: 12, onTap: () => context.push('/premium-upgrade')),
               _buildSubActionItem(Icons.star_outline, 'My Interests', onTap: () {}),
               _buildSubActionItem(Icons.description_outlined, 'Documents', onTap: () {}),
               _buildSubActionItem(Icons.visibility_outlined, 'Profile Views', badgeCount: 36, onTap: () {}),
@@ -646,9 +649,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 Expanded(
                   child: Column(
                     children: [
-                      _buildChecklistItem('Basic Information', true),
-                      _buildChecklistItem('Lifestyle & Values', true),
-                      _buildChecklistItem('Family Background', true),
+                      _buildChecklistItem('Basic Information', true, onTap: () => context.push('/premium-upgrade')),
+                      _buildChecklistItem('Lifestyle & Values', true, onTap: () => context.push('/premium-upgrade')),
+                      _buildChecklistItem('Family Background', true, onTap: () => context.push('/premium-upgrade')),
                     ],
                   ),
                 ),
@@ -656,9 +659,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 Expanded(
                   child: Column(
                     children: [
-                      _buildChecklistItem('Photos', false, detail: '3/5 photos added'),
-                      _buildChecklistItem('Identity Verification', true),
-                      _buildChecklistItem('About Me', false, detail: 'Add your story', isCallToAction: true),
+                      _buildChecklistItem('Photos', false, detail: '3/5 photos added', onTap: () => context.push('/premium-upgrade')),
+                      _buildChecklistItem('Identity Verification', true, onTap: () => context.push('/premium-upgrade')),
+                      _buildChecklistItem('About Me', false, detail: 'Add your story', isCallToAction: true, onTap: () => context.push('/premium-upgrade')),
                     ],
                   ),
                 ),
@@ -670,40 +673,44 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget _buildChecklistItem(String label, bool isCompleted, {String? detail, bool isCallToAction = false}) {
+  Widget _buildChecklistItem(String label, bool isCompleted, {String? detail, bool isCallToAction = false, VoidCallback? onTap}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
-      child: Row(
-        children: [
-          Icon(
-            isCompleted ? Icons.check_circle : Icons.circle_outlined,
-            size: 14,
-            color: isCompleted ? const Color(0xFF2E7D32) : Colors.grey[400],
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
-                ),
-                if (detail != null)
-                  Text(
-                    detail,
-                    style: GoogleFonts.inter(
-                      fontSize: 8,
-                      fontWeight: FontWeight.bold,
-                      color: isCallToAction ? const Color(0xFFEF6C00) : AppTheme.secondaryGrey,
-                    ),
-                  ),
-              ],
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Row(
+          children: [
+            Icon(
+              isCompleted ? Icons.check_circle : Icons.circle_outlined,
+              size: 14,
+              color: isCompleted ? const Color(0xFF2E7D32) : Colors.grey[400],
             ),
-          ),
-          if (!isCompleted)
-            Icon(Icons.chevron_right, size: 10, color: Colors.grey[400]),
-        ],
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+                  ),
+                  if (detail != null)
+                    Text(
+                      detail,
+                      style: GoogleFonts.inter(
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                        color: isCallToAction ? const Color(0xFFEF6C00) : AppTheme.secondaryGrey,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            if (!isCompleted)
+              Icon(Icons.chevron_right, size: 10, color: Colors.grey[400]),
+          ],
+        ),
       ),
     );
   }
