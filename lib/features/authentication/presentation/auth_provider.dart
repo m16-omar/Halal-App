@@ -551,6 +551,14 @@ class AuthNotifier extends Notifier<AuthState> {
     String? education,
     String? islamicLevel,
     String? modeOfDressing,
+    // Premium lifestyle fields (only sent for premium seekers)
+    String? bloodGroup,
+    String? genotype,
+    String? healthStatus,
+    String? appearance,
+    String? openToPolygamy,
+    String? willingToRelocate,
+    String? marriageTimeline,
   }) async {
     final currentUser = state.user;
     if (currentUser == null) return false;
@@ -569,6 +577,13 @@ class AuthNotifier extends Notifier<AuthState> {
         if (education != null) 'education': education,
         if (islamicLevel != null) 'islamic_level': islamicLevel,
         if (modeOfDressing != null) 'mode_of_dressing': modeOfDressing,
+        if (bloodGroup != null) 'blood_group': bloodGroup,
+        if (genotype != null) 'genotype': genotype,
+        if (healthStatus != null) 'health_status': healthStatus,
+        if (appearance != null) 'appearance': appearance,
+        if (openToPolygamy != null) 'open_to_polygamy': openToPolygamy,
+        if (willingToRelocate != null) 'willing_to_relocate': willingToRelocate,
+        if (marriageTimeline != null) 'marriage_timeline': marriageTimeline,
       });
 
       if (response['status'] == 'success') {

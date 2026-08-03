@@ -215,7 +215,11 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
         _currentStep--;
       });
     } else {
-      context.pop();
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        context.go('/home');
+      }
     }
   }
 

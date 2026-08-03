@@ -38,6 +38,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   String _prefEducation = "Bachelor's Degree";
   String _prefSect = 'Sunni';
 
+  // Premium lifestyle fields (only shown/saved for Verified seekers)
+  String _bloodGroup = 'A+';
+  String _genotype = 'AA';
+  String _healthStatus = '';
+  String _appearance = '';
+  String _islamicLevel = 'Practising';
+  String _modeOfDressing = 'Hijab (Full covering)';
+  String _openToPolygamy = 'No';
+  String _willingToRelocate = 'No';
+  String _marriageTimeline = 'As soon as possible';
+
   // Blocked users list (empty by default; managed locally)
   final List<String> _blockedUsers = [];
 
@@ -55,16 +66,40 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           _profileJob = user.occupation ?? '';
           _email = user.email ?? '';
           _phone = user.phoneNumber;
+          // Pre-fill premium lifestyle fields if they exist
+          _bloodGroup = user.bloodGroup ?? 'A+';
+          _genotype = user.genotype ?? 'AA';
+          _healthStatus = user.healthStatus ?? '';
+          _appearance = user.appearance ?? '';
+          _islamicLevel = user.islamicLevel ?? 'Practising';
+          _modeOfDressing = user.modeOfDressing ?? 'Hijab (Full covering)';
+          _openToPolygamy = user.openToPolygamy ?? 'No';
+          _willingToRelocate = user.willingToRelocate ?? 'No';
+          _marriageTimeline = user.marriageTimeline ?? 'As soon as possible';
         });
       }
     });
   }
 
   void _showEditProfileBottomSheet() {
+    final user = ref.read(authProvider).user;
+    final isPremium = (user?.status ?? 'Unverified') == 'Verified';
+
     final nameController = TextEditingController(text: _profileName);
     final ageController = TextEditingController(text: _profileAge.toString());
     final locationController = TextEditingController(text: _profileLocation);
     final jobController = TextEditingController(text: _profileJob);
+    final healthStatusController = TextEditingController(text: _healthStatus);
+    final appearanceController = TextEditingController(text: _appearance);
+
+    // Local modal state for premium dropdowns
+    String bloodGroup = _bloodGroup;
+    String genotype = _genotype;
+    String islamicLevel = _islamicLevel;
+    String modeOfDressing = _modeOfDressing;
+    String openToPolygamy = _openToPolygamy;
+    String willingToRelocate = _willingToRelocate;
+    String marriageTimeline = _marriageTimeline;
 
     showModalBottomSheet(
       context: context,
@@ -106,6 +141,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
                 const Divider(),
                 const SizedBox(height: 12),
+
+                // ===== BASIC FIELDS =====
                 Text('Full Name', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 TextFormField(
@@ -134,6 +171,70 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   controller: jobController,
                   decoration: const InputDecoration(hintText: 'Enter job title'),
                 ),
+
+                // ===== PREMIUM LIFESTYLE FIELDS =====
+                if (isPremium) ...[  
+                  const SizedBox(height: 24),
+                  const Divider(),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.workspace_premium, color: AppTheme.primaryGreen, size: 16),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Health & Lifestyle',
+                        style: GoogleFonts.outfit(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.primaryGreen,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  _buildModalDropdown('Blood Group', bloodGroup,
+                      ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+                      (val) { if (val != null) setModalState(() => bloodGroup = val); }),
+                  const SizedBox(height: 12),
+                  _buildModalDropdown('Genotype', genotype,
+                      ['AA', 'AS', 'SS', 'AC', 'SC'],
+                      (val) { if (val != null) setModalState(() => genotype = val); }),
+                  const SizedBox(height: 12),
+                  Text('Health Status', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: healthStatusController,
+                    decoration: const InputDecoration(hintText: 'e.g. Healthy, Diabetic, Asthmatic'),
+                  ),
+                  const SizedBox(height: 12),
+                  Text('Appearance / Build', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: appearanceController,
+                    decoration: const InputDecoration(hintText: 'e.g. Slim, Athletic, Average'),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildModalDropdown('Islamic Practice Level', islamicLevel,
+                      ['Beginner', 'Moderate', 'Practising', 'Strictly Practising', 'Sufi'],
+                      (val) { if (val != null) setModalState(() => islamicLevel = val); }),
+                  const SizedBox(height: 12),
+                  _buildModalDropdown('Mode of Dressing', modeOfDressing,
+                      ['Niqab', 'Hijab (Full covering)', 'Hijab (Modest)', 'Traditional/Modest dress', 'Islamic dress (male)', 'Smart/Modest casual', 'Casual'],
+                      (val) { if (val != null) setModalState(() => modeOfDressing = val); }),
+                  const SizedBox(height: 12),
+                  _buildModalDropdown('Open to Polygamy', openToPolygamy,
+                      ['Yes', 'No', 'Not sure'],
+                      (val) { if (val != null) setModalState(() => openToPolygamy = val); }),
+                  const SizedBox(height: 12),
+                  _buildModalDropdown('Willing to Relocate', willingToRelocate,
+                      ['Yes', 'No', 'Maybe'],
+                      (val) { if (val != null) setModalState(() => willingToRelocate = val); }),
+                  const SizedBox(height: 12),
+                  _buildModalDropdown('Marriage Timeline', marriageTimeline,
+                      ['As soon as possible', 'Within 6 months', 'Within 1 year', '1–2 years', 'Not sure yet'],
+                      (val) { if (val != null) setModalState(() => marriageTimeline = val); }),
+                ],
+
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
@@ -145,8 +246,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                     onPressed: () async {
                       final updatedName = nameController.text.trim();
-                      final updatedAgeStr = ageController.text.trim();
-                      final updatedAge = int.tryParse(updatedAgeStr);
+                      final updatedAge = int.tryParse(ageController.text.trim());
                       final updatedLocation = locationController.text.trim();
                       final updatedJob = jobController.text.trim();
 
@@ -164,11 +264,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         age: updatedAge,
                         occupation: updatedJob,
                         education: _prefEducation,
+                        // Premium lifestyle fields (only sent when premium)
+                        bloodGroup: isPremium ? bloodGroup : null,
+                        genotype: isPremium ? genotype : null,
+                        healthStatus: isPremium ? healthStatusController.text.trim() : null,
+                        appearance: isPremium ? appearanceController.text.trim() : null,
+                        islamicLevel: isPremium ? islamicLevel : null,
+                        modeOfDressing: isPremium ? modeOfDressing : null,
+                        openToPolygamy: isPremium ? openToPolygamy : null,
+                        willingToRelocate: isPremium ? willingToRelocate : null,
+                        marriageTimeline: isPremium ? marriageTimeline : null,
                       );
 
-                      if (context.mounted) {
-                        Navigator.pop(context); // Dismiss loading dialog
-                      }
+                      if (context.mounted) Navigator.pop(context); // Dismiss loading
 
                       if (success) {
                         setState(() {
@@ -176,18 +284,29 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           if (updatedAge != null) _profileAge = updatedAge;
                           _profileLocation = updatedLocation;
                           _profileJob = updatedJob;
+                          if (isPremium) {
+                            _bloodGroup = bloodGroup;
+                            _genotype = genotype;
+                            _healthStatus = healthStatusController.text.trim();
+                            _appearance = appearanceController.text.trim();
+                            _islamicLevel = islamicLevel;
+                            _modeOfDressing = modeOfDressing;
+                            _openToPolygamy = openToPolygamy;
+                            _willingToRelocate = willingToRelocate;
+                            _marriageTimeline = marriageTimeline;
+                          }
                         });
                         if (context.mounted) {
                           Navigator.pop(context); // Dismiss sheet
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Profile information synced to backend successfully.')),
+                            const SnackBar(content: Text('Profile updated successfully.')),
                           );
                         }
                       } else {
                         final error = ref.read(authProvider).errorMessage ?? 'Sync failed';
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Failed to sync changes: $error')),
+                            SnackBar(content: Text('Failed to save changes: $error')),
                           );
                         }
                       }
@@ -203,6 +322,40 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  /// Reusable dropdown field for use inside bottom sheet modals
+  Widget _buildModalDropdown(
+    String label,
+    String value,
+    List<String> options,
+    ValueChanged<String?> onChanged,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          value: options.contains(value) ? value : options.first,
+          items: options
+              .map((opt) => DropdownMenuItem(value: opt, child: Text(opt, style: GoogleFonts.inter(fontSize: 13))))
+              .toList(),
+          onChanged: onChanged,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          ),
+        ),
+      ],
     );
   }
 
