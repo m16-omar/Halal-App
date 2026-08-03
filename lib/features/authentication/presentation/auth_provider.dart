@@ -593,6 +593,41 @@ class AuthNotifier extends Notifier<AuthState> {
     }
   }
 
+  Future<bool> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    final currentUser = state.user;
+    if (currentUser == null) return false;
+
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      final response = await _apiClient.post('/user/change-password/', {
+        'seeker_id': currentUser.id,
+        'role': currentUser.role,
+        'old_password': oldPassword,
+        'new_password': newPassword,
+      });
+
+      if (response['status'] == 'success') {
+        state = state.copyWith(isLoading: false);
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: response['message'] ?? 'Password change failed',
+        );
+        return false;
+      }
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString().replaceAll('Exception: ', ''),
+      );
+      return false;
+    }
+  }
+
   Future<void> refreshUserStatus() async {
     final currentUser = state.user;
     if (currentUser == null) return;

@@ -38,8 +38,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   String _prefEducation = "Bachelor's Degree";
   String _prefSect = 'Sunni';
 
-  // Blocked users list
-  final List<String> _blockedUsers = ['Ahmad Bello', 'Fatima Yusuf'];
+  // Blocked users list (empty by default; managed locally)
+  final List<String> _blockedUsers = [];
 
   @override
   void initState() {
@@ -329,13 +329,38 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   void _showVerificationStatusDialog() {
+    final user = ref.read(authProvider).user;
+    final status = user?.status ?? 'Unverified';
+
+    String statusLabel;
+    String statusDesc;
+    Color statusColor;
+    IconData statusIcon;
+
+    if (status == 'Verified') {
+      statusLabel = 'PREMIUM VERIFIED ✓';
+      statusDesc = 'Your profile has been fully verified by our admin board after reviewing your government-issued documentation. Your Premium badge is now ACTIVE.';
+      statusColor = AppTheme.primaryGreen;
+      statusIcon = Icons.verified;
+    } else if (status == 'Pending') {
+      statusLabel = 'PENDING REVIEW';
+      statusDesc = 'Your documents are currently under review by our admin team. You will be notified once the verification is approved. This typically takes 24–48 hours.';
+      statusColor = Colors.orange;
+      statusIcon = Icons.hourglass_empty_outlined;
+    } else {
+      statusLabel = 'NOT VERIFIED';
+      statusDesc = 'Your account has not been verified yet. Submit a valid government ID through the Premium Upgrade process to unlock Premium Verified status and see matches.';
+      statusColor = Colors.red[400]!;
+      statusIcon = Icons.verified_user_outlined;
+    }
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
-            const Icon(Icons.verified, color: AppTheme.primaryGreen, size: 28),
+            Icon(statusIcon, color: statusColor, size: 28),
             const SizedBox(width: 8),
             Text('Verification Status', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
           ],
@@ -344,20 +369,44 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Nupe Halal Connect Profile: PREMIUM VERIFIED',
-              style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.primaryGreen),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: statusColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: statusColor.withOpacity(0.3)),
+              ),
+              child: Text(
+                statusLabel,
+                style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, color: statusColor),
+              ),
             ),
             const SizedBox(height: 12),
             Text(
-              'Your profile has been fully verified by our admin board after reviewing your government-issued documentation.',
+              statusDesc,
               style: GoogleFonts.inter(fontSize: 13, color: AppTheme.darkCharcoal, height: 1.4),
             ),
-            const SizedBox(height: 10),
-            Text(
-              'Verified date: 15 June 2026\nBadge status: ACTIVE',
-              style: GoogleFonts.inter(fontSize: 11, color: AppTheme.secondaryGrey),
-            ),
+            if (status == 'Unverified') ...[  
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    context.push('/premium-upgrade');
+                  },
+                  icon: const Icon(Icons.verified_outlined, size: 16),
+                  label: Text('Start Verification Now', style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryGreen,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
         actions: [
@@ -682,7 +731,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text('Change Password', style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
         content: SingleChildScrollView(
@@ -712,28 +761,160 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text('Cancel', style: GoogleFonts.inter(color: Colors.grey[600])),
           ),
           ElevatedButton(
-            onPressed: () {
-              if (oldController.text.isEmpty || newController.text.isEmpty || confirmController.text.isEmpty) return;
+            onPressed: () async {
+              if (oldController.text.isEmpty ||
+                  newController.text.isEmpty ||
+                  confirmController.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please fill in all password fields.')),
+                );
+                return;
+              }
               if (newController.text != confirmController.text) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('New passwords do not match.')),
                 );
                 return;
               }
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Password updated successfully.')),
+              if (newController.text.length < 6) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('New password must be at least 6 characters.')),
+                );
+                return;
+              }
+              // Dismiss dialog first
+              Navigator.pop(dialogContext);
+              // Show loading spinner
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (_) => const Center(
+                  child: CircularProgressIndicator(color: AppTheme.primaryGreen),
+                ),
               );
+              final success = await ref.read(authProvider.notifier).changePassword(
+                oldPassword: oldController.text,
+                newPassword: newController.text,
+              );
+              if (mounted) Navigator.pop(context); // Dismiss spinner
+              if (success) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Password changed successfully.'),
+                    backgroundColor: AppTheme.primaryGreen,
+                  ),
+                );
+              } else {
+                final error = ref.read(authProvider).errorMessage ?? 'Password change failed.';
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(error), backgroundColor: Colors.red),
+                );
+              }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryGreen),
             child: Text('Update', style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
+    );
+  }
+
+  void _showAboutBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 48,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 24),
+              decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)),
+            ),
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8F5E9),
+                shape: BoxShape.circle,
+                border: Border.all(color: AppTheme.primaryGreen.withOpacity(0.3), width: 2),
+              ),
+              child: const Icon(Icons.mosque_outlined, color: AppTheme.primaryGreen, size: 40),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Nupe Halal Connect',
+              style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+            ),
+            const SizedBox(height: 4),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8F5E9),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                'Version 1.0.0',
+                style: GoogleFonts.inter(fontSize: 12, color: AppTheme.primaryGreen, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'A Halal matchmaking platform built on Islamic values and ethics. Connecting Muslim men and women seeking marriage under the guidance of their Wali and supervised by verified Imams.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(fontSize: 13, color: Colors.grey[600], height: 1.5),
+            ),
+            const SizedBox(height: 20),
+            const Divider(),
+            const SizedBox(height: 12),
+            _buildAboutInfoRow(Icons.email_outlined, 'support@nupehalalconnect.com'),
+            const SizedBox(height: 10),
+            _buildAboutInfoRow(Icons.phone_outlined, '+234 704 585 9388'),
+            const SizedBox(height: 10),
+            _buildAboutInfoRow(Icons.language_outlined, 'www.nupehalalconnect.com'),
+            const SizedBox(height: 10),
+            _buildAboutInfoRow(Icons.copyright_outlined, '© 2026 Nupe Halal Connect. All rights reserved.'),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () => Navigator.pop(context),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppTheme.primaryGreen),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                child: Text('Close', style: GoogleFonts.inter(color: AppTheme.primaryGreen, fontWeight: FontWeight.bold)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAboutInfoRow(IconData icon, String text) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(icon, size: 14, color: AppTheme.primaryGreen),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(text, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey[600])),
+        ),
+      ],
     );
   }
 
@@ -1066,6 +1247,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _buildSettingsTile(
                     Icons.info_outline,
                     'About Nupe Halal Connect',
+                    onTap: _showAboutBottomSheet,
                     trailingWidget: Text(
                       'v1.0.0',
                       style: GoogleFonts.inter(fontSize: 12, color: AppTheme.secondaryGrey),
