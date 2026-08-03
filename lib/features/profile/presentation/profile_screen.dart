@@ -742,6 +742,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 minimumSize: Size.zero,
               ),
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text('Upgrade to Premium', style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.bold)),
                   const SizedBox(width: 2),
