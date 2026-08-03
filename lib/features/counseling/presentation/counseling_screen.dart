@@ -934,6 +934,265 @@ class _CounselingScreenState extends ConsumerState<CounselingScreen> {
     );
   }
 
+  void _showAllResourcesBottomSheet() {
+    final List<Map<String, String>> allResources = [
+      {
+        'title': 'Building a Strong Islamic Marriage',
+        'sub': 'Key principles every couple should know before and after marriage.',
+        'tag': 'Video',
+        'duration': '12:45',
+        'type': 'video',
+      },
+      {
+        'title': 'Rights and Responsibilities in Marriage',
+        'sub': 'A balanced understanding from the Qur\'an and Sunnah.',
+        'tag': 'Article',
+        'duration': '08:32',
+        'type': 'article',
+      },
+      {
+        'title': 'Communication in Marriage',
+        'sub': 'How to communicate with love, respect and understanding.',
+        'tag': 'Audio',
+        'duration': '10:15',
+        'type': 'audio',
+      },
+      {
+        'title': 'Managing Conflicts Islamically',
+        'sub': 'Practical tips from Quranic guidance on conflict resolution.',
+        'tag': 'Article',
+        'duration': '06:20',
+        'type': 'article',
+      },
+      {
+        'title': 'The Prophet\'s (SAW) Marital Life',
+        'sub': 'Lessons from the household of the Prophet Muhammad.',
+        'tag': 'Video',
+        'duration': '22:15',
+        'type': 'video',
+      },
+      {
+        'title': 'Mahr and Marriage Contracts',
+        'sub': 'Understanding the rules of dowry and Nikah conditions.',
+        'tag': 'Audio',
+        'duration': '14:40',
+        'type': 'audio',
+      },
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.8,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (_, scrollController) => Container(
+          decoration: const BoxDecoration(
+            color: Color(0xFFF9FAF6),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Counseling Resources',
+                      style: GoogleFonts.outfit(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.darkCharcoal,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(),
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(20),
+                  itemCount: allResources.length,
+                  itemBuilder: (context, index) {
+                    final res = allResources[index];
+                    IconData tagIcon = Icons.play_circle_outline;
+                    Color tagColor = const Color(0xFF673AB7);
+                    if (res['type'] == 'article') {
+                      tagIcon = Icons.description_outlined;
+                      tagColor = const Color(0xFF2E7D32);
+                    } else if (res['type'] == 'audio') {
+                      tagIcon = Icons.headset_outlined;
+                      tagColor = const Color(0xFFEF6C00);
+                    }
+
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.pop(context);
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            title: Row(
+                              children: [
+                                Icon(tagIcon, color: tagColor),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    res['title']!,
+                                    style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            content: Text(
+                              '${res['sub']}\n\nThis is a simulation of the full lesson content (${res['tag']} - ${res['duration']}). Premium members get unlimited access to all counseling curriculum resources.',
+                              style: GoogleFonts.inter(fontSize: 14, color: AppTheme.darkCharcoal, height: 1.4),
+                            ),
+                            actions: [
+                              TextButton(
+                                child: Text('Close', style: GoogleFonts.inter(color: AppTheme.primaryGreen, fontWeight: FontWeight.bold)),
+                                onPressed: () => Navigator.pop(context),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.black.withOpacity(0.03)),
+                        ),
+                        child: Row(
+                          children: [
+                            Stack(
+                              children: [
+                                Container(
+                                  width: 90,
+                                  height: 70,
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.primaryGreen.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Center(
+                                    child: Icon(tagIcon, color: tagColor, size: 24),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: 4,
+                                  right: 4,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.7),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      res['duration']!,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 7,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    res['title']!,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppTheme.darkCharcoal,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    res['sub']!,
+                                    style: GoogleFonts.inter(
+                                      fontSize: 10,
+                                      color: AppTheme.secondaryGrey,
+                                      height: 1.3,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: tagColor.withOpacity(0.08),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(tagIcon, size: 8, color: tagColor),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          res['tag']!,
+                                          style: GoogleFonts.inter(
+                                            fontSize: 8,
+                                            color: tagColor,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   // --- RECOMMENDED SECTION ---
   Widget _buildRecommendedSection() {
     final List<Map<String, String>> resources = [
@@ -983,22 +1242,25 @@ class _CounselingScreenState extends ConsumerState<CounselingScreen> {
                   color: AppTheme.darkCharcoal,
                 ),
               ),
-              if (_selectedCategory != null)
-                GestureDetector(
-                  onTap: () {
+              GestureDetector(
+                onTap: () {
+                  if (_selectedCategory != null) {
                     setState(() {
                       _selectedCategory = null;
                     });
-                  },
-                  child: Text(
-                    'Clear Filter',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: AppTheme.primaryGreen,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  } else {
+                    _showAllResourcesBottomSheet();
+                  }
+                },
+                child: Text(
+                  _selectedCategory != null ? 'Clear Filter' : 'View all >',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: AppTheme.primaryGreen,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
+              ),
             ],
           ),
         ),
