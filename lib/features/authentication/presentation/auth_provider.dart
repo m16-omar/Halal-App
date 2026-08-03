@@ -14,6 +14,9 @@ class SeekerUser {
   final String? email;
   final String? relationship;
   final String? wardName;
+  final int? age;
+  final String? occupation;
+  final String? education;
 
   SeekerUser({
     required this.id,
@@ -27,6 +30,9 @@ class SeekerUser {
     this.email,
     this.relationship,
     this.wardName,
+    this.age,
+    this.occupation,
+    this.education,
   });
 
   factory SeekerUser.fromJson(Map<String, dynamic> json) {
@@ -42,6 +48,9 @@ class SeekerUser {
       email: json['email'] as String?,
       relationship: json['relationship'] as String?,
       wardName: json['ward_name'] as String?,
+      age: json['age'] as int?,
+      occupation: json['occupation'] as String?,
+      education: json['education'] as String?,
     );
   }
 }
@@ -90,6 +99,9 @@ class AuthNotifier extends Notifier<AuthState> {
       await prefs.setString('user_relationship', user.relationship!);
     if (user.wardName != null)
       await prefs.setString('user_ward_name', user.wardName!);
+    if (user.age != null) await prefs.setInt('user_age', user.age!);
+    if (user.occupation != null) await prefs.setString('user_occupation', user.occupation!);
+    if (user.education != null) await prefs.setString('user_education', user.education!);
   }
 
   Future<void> _clearUserFromPrefs() async {
@@ -105,6 +117,9 @@ class AuthNotifier extends Notifier<AuthState> {
     await prefs.remove('user_email');
     await prefs.remove('user_relationship');
     await prefs.remove('user_ward_name');
+    await prefs.remove('user_age');
+    await prefs.remove('user_occupation');
+    await prefs.remove('user_education');
   }
 
   Future<bool> checkAutoLogin() async {
@@ -125,6 +140,9 @@ class AuthNotifier extends Notifier<AuthState> {
           email: prefs.getString('user_email'),
           relationship: prefs.getString('user_relationship'),
           wardName: prefs.getString('user_ward_name'),
+          age: prefs.getInt('user_age'),
+          occupation: prefs.getString('user_occupation'),
+          education: prefs.getString('user_education'),
         );
         state = AuthState(user: user);
         return true;
@@ -391,6 +409,54 @@ class AuthNotifier extends Notifier<AuthState> {
         state = state.copyWith(
           isLoading: false,
           errorMessage: response['message'] ?? 'Premium upgrade failed',
+        );
+        return false;
+      }
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString().replaceAll('Exception: ', ''),
+      );
+      return false;
+    }
+  }
+
+  Future<bool> updateProfile({
+    required String fullName,
+    required String stateName,
+    required String phoneNumber,
+    required String email,
+    int? age,
+    String? occupation,
+    String? education,
+  }) async {
+    final currentUser = state.user;
+    if (currentUser == null) return false;
+
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    try {
+      final response = await _apiClient.post('/user/update/', {
+        'id': currentUser.id,
+        'role': currentUser.role,
+        'full_name': fullName,
+        'state': stateName,
+        'phone_number': phoneNumber,
+        'email': email,
+        if (age != null) 'age': age,
+        if (occupation != null) 'occupation': occupation,
+        if (education != null) 'education': education,
+      });
+
+      if (response['status'] == 'success') {
+        final userData = response['user'];
+        final updatedUser = SeekerUser.fromJson(userData);
+        await _saveUserToPrefs(updatedUser);
+        state = AuthState(user: updatedUser);
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: response['message'] ?? 'Update failed',
         );
         return false;
       }

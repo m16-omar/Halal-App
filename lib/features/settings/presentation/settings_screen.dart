@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../shared/components/custom_bottom_nav.dart';
+import '../../authentication/presentation/auth_provider.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _pushNotifications = true;
   bool _emailAlerts = false;
   bool _matchAlerts = true;
@@ -38,6 +40,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   // Blocked users list
   final List<String> _blockedUsers = ['Ahmad Bello', 'Fatima Yusuf'];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ref.read(authProvider.notifier).refreshUserStatus();
+      final user = ref.read(authProvider).user;
+      if (user != null) {
+        setState(() {
+          _profileName = user.fullName;
+          _profileAge = user.age ?? 28;
+          _profileLocation = user.state;
+          _profileJob = user.occupation ?? '';
+          _email = user.email ?? '';
+          _phone = user.phoneNumber;
+        });
+      }
+    });
+  }
 
   void _showEditProfileBottomSheet() {
     final nameController = TextEditingController(text: _profileName);
@@ -122,17 +143,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       backgroundColor: AppTheme.primaryGreen,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _profileName = nameController.text.trim();
-                        _profileAge = int.tryParse(ageController.text) ?? _profileAge;
-                        _profileLocation = locationController.text.trim();
-                        _profileJob = jobController.text.trim();
-                      });
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Profile information updated successfully.')),
+                    onPressed: () async {
+                      final updatedName = nameController.text.trim();
+                      final updatedAgeStr = ageController.text.trim();
+                      final updatedAge = int.tryParse(updatedAgeStr);
+                      final updatedLocation = locationController.text.trim();
+                      final updatedJob = jobController.text.trim();
+
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => const Center(child: CircularProgressIndicator()),
                       );
+
+                      final success = await ref.read(authProvider.notifier).updateProfile(
+                        fullName: updatedName,
+                        stateName: updatedLocation,
+                        phoneNumber: _phone,
+                        email: _email,
+                        age: updatedAge,
+                        occupation: updatedJob,
+                        education: _prefEducation,
+                      );
+
+                      if (context.mounted) {
+                        Navigator.pop(context); // Dismiss loading dialog
+                      }
+
+                      if (success) {
+                        setState(() {
+                          _profileName = updatedName;
+                          if (updatedAge != null) _profileAge = updatedAge;
+                          _profileLocation = updatedLocation;
+                          _profileJob = updatedJob;
+                        });
+                        if (context.mounted) {
+                          Navigator.pop(context); // Dismiss sheet
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Profile information synced to backend successfully.')),
+                          );
+                        }
+                      } else {
+                        final error = ref.read(authProvider).errorMessage ?? 'Sync failed';
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Failed to sync changes: $error')),
+                          );
+                        }
+                      }
                     },
                     child: Text(
                       'Save Changes',
@@ -214,15 +272,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   backgroundColor: AppTheme.primaryGreen,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
-                onPressed: () {
-                  setState(() {
-                    _email = emailController.text.trim();
-                    _phone = phoneController.text.trim();
-                  });
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Contact details updated successfully.')),
+                onPressed: () async {
+                  final updatedEmail = emailController.text.trim();
+                  final updatedPhone = phoneController.text.trim();
+
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => const Center(child: CircularProgressIndicator()),
                   );
+
+                  final success = await ref.read(authProvider.notifier).updateProfile(
+                    fullName: _profileName,
+                    stateName: _profileLocation,
+                    phoneNumber: updatedPhone,
+                    email: updatedEmail,
+                    age: _profileAge,
+                    occupation: _profileJob,
+                    education: _prefEducation,
+                  );
+
+                  if (context.mounted) {
+                    Navigator.pop(context); // Dismiss loading dialog
+                  }
+
+                  if (success) {
+                    setState(() {
+                      _email = updatedEmail;
+                      _phone = updatedPhone;
+                    });
+                    if (context.mounted) {
+                      Navigator.pop(context); // Dismiss sheet
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Contact details synced to backend successfully.')),
+                      );
+                    }
+                  } else {
+                    final error = ref.read(authProvider).errorMessage ?? 'Sync failed';
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to sync contact details: $error')),
+                      );
+                    }
+                  }
                 },
                 child: Text(
                   'Save Contact Details',
@@ -798,6 +890,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+    final userStatus = authState.user?.status ?? 'Unverified';
+    Color badgeBg;
+    Color badgeText;
+    if (userStatus == 'Verified') {
+      badgeBg = const Color(0xFFE8F5E9);
+      badgeText = AppTheme.primaryGreen;
+    } else if (userStatus == 'Pending') {
+      badgeBg = const Color(0xFFFFF3E0);
+      badgeText = Colors.orange[800]!;
+    } else {
+      badgeBg = const Color(0xFFECEFF1);
+      badgeText = Colors.blueGrey[700]!;
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -853,13 +960,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     trailingWidget: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE8F5E9),
+                        color: badgeBg,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppTheme.primaryGreen.withOpacity(0.3)),
+                        border: Border.all(color: badgeText.withOpacity(0.3)),
                       ),
                       child: Text(
-                        'Premium Verified',
-                        style: GoogleFonts.inter(fontSize: 11, color: AppTheme.primaryGreen, fontWeight: FontWeight.bold),
+                        userStatus == 'Verified' ? 'Premium Verified' : userStatus,
+                        style: GoogleFonts.inter(fontSize: 11, color: badgeText, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
