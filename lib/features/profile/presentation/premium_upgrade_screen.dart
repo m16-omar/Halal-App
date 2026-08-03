@@ -324,8 +324,8 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
                 return Expanded(
                   child: Center(
                     child: Container(
-                      width: 26,
-                      height: 26,
+                      width: 28,
+                      height: 28,
                       decoration: BoxDecoration(
                         color: isActive ? AppTheme.primaryGreen : Colors.white,
                         shape: BoxShape.circle,
@@ -338,9 +338,9 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
                       child: Text(
                         '${stepNum + 1}',
                         style: GoogleFonts.outfit(
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          color: isActive ? Colors.white : Colors.grey[500],
+                          color: isActive ? Colors.white : Colors.grey[600],
                         ),
                       ),
                     ),
@@ -370,9 +370,9 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
                   stepLabels[index],
                   textAlign: TextAlign.center,
                   style: GoogleFonts.inter(
-                    fontSize: 8,
+                    fontSize: 10,
                     fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
-                    color: isCurrent ? AppTheme.primaryGreen : Colors.grey[400],
+                    color: isCurrent ? AppTheme.primaryGreen : Colors.grey[500],
                   ),
                 ),
               );
@@ -414,10 +414,10 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
                   children: [
                     Text(
                       _currentStep == _totalSteps - 1 ? 'Pay & Upgrade' : 'Continue',
-                      style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold),
+                      style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(width: 8),
-                    const Icon(Icons.chevron_right, size: 18),
+                    const Icon(Icons.chevron_right, size: 20),
                   ],
                 ),
               ),
@@ -426,11 +426,11 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.lock_outline, size: 12, color: Colors.grey),
+                const Icon(Icons.lock_outline, size: 14, color: Colors.grey),
                 const SizedBox(width: 4),
                 Text(
                   'You can cancel or change your plan anytime.',
-                  style: GoogleFonts.inter(fontSize: 9, color: Colors.grey[500]),
+                  style: GoogleFonts.inter(fontSize: 11, color: Colors.grey[500]),
                 ),
               ],
             ),
@@ -1070,12 +1070,12 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
       children: [
         Text(
           title,
-          style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+          style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
         ),
         const SizedBox(height: 4),
         Text(
           desc,
-          style: GoogleFonts.inter(fontSize: 11, color: AppTheme.secondaryGrey),
+          style: GoogleFonts.inter(fontSize: 13, color: AppTheme.secondaryGrey),
         ),
         const SizedBox(height: 20),
       ],
@@ -1090,17 +1090,17 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
         children: [
           Text(
             label,
-            style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+            style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
           ),
           const SizedBox(height: 6),
           TextField(
             controller: controller,
             keyboardType: inputType,
             maxLines: maxLines,
-            style: GoogleFonts.inter(fontSize: 12),
+            style: GoogleFonts.inter(fontSize: 15),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: GoogleFonts.inter(fontSize: 11, color: Colors.grey[400]),
+              hintStyle: GoogleFonts.inter(fontSize: 14, color: Colors.grey[400]),
               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               filled: true,
               fillColor: Colors.white,
@@ -1122,7 +1122,7 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
         children: [
           Text(
             label,
-            style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+            style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
           ),
           const SizedBox(height: 6),
           Container(
@@ -1136,7 +1136,7 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
               child: DropdownButton<String>(
                 value: value,
                 isExpanded: true,
-                style: GoogleFonts.inter(fontSize: 12, color: AppTheme.darkCharcoal),
+                style: GoogleFonts.inter(fontSize: 15, color: AppTheme.darkCharcoal),
                 items: options.map((opt) {
                   return DropdownMenuItem(value: opt, child: Text(opt));
                 }).toList(),
