@@ -364,15 +364,20 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+    return PopScope(
+      canPop: false, // Prevent direct route pop — always go through _prevStep
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _prevStep();
+      },
+      child: Scaffold(
         backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.darkCharcoal),
-          onPressed: _prevStep,
-        ),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: AppTheme.darkCharcoal),
+            onPressed: _prevStep,
+          ),
         title: Row(
           children: [
             Text(
@@ -417,7 +422,8 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
           _buildBottomActionBar(),
         ],
       ),
-    );
+      ), // Scaffold
+    ); // PopScope
   }
 
   // --- PROGRESS TRACKER BAR ---
