@@ -206,13 +206,6 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
         return;
       }
     }
-    if (_currentStep == 4) {
-      if (_cardNumberController.text.length < 16 || _cardExpiryController.text.isEmpty || _cardCvvController.text.length < 3) {
-        _showErrorSnackBar('Please enter valid credit card details.');
-        return;
-      }
-    }
-
     if (_currentStep < _totalSteps - 1) {
       setState(() {
         _currentStep++;
