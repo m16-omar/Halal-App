@@ -48,6 +48,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   String _openToPolygamy = 'No';
   String _willingToRelocate = 'No';
   String _marriageTimeline = 'As soon as possible';
+  // Spouse preference fields
+  String _spouseMaritalStatus = 'Any';
+  String _spouseChildrenPref = 'No preference';
+  String _spouseLocation = '';
 
   // Blocked users list (empty by default; managed locally)
   final List<String> _blockedUsers = [];
@@ -76,6 +80,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           _openToPolygamy = user.openToPolygamy ?? 'No';
           _willingToRelocate = user.willingToRelocate ?? 'No';
           _marriageTimeline = user.marriageTimeline ?? 'As soon as possible';
+          // Spouse preferences
+          _spouseMaritalStatus = user.spouseMaritalStatus ?? 'Any';
+          _spouseChildrenPref = user.spouseChildrenPref ?? 'No preference';
+          _spouseLocation = user.spouseLocation ?? '';
         });
       }
     });
@@ -91,6 +99,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final jobController = TextEditingController(text: _profileJob);
     final healthStatusController = TextEditingController(text: _healthStatus);
     final appearanceController = TextEditingController(text: _appearance);
+    final spouseLocationController = TextEditingController(text: _spouseLocation);
 
     // Local modal state for premium dropdowns
     String bloodGroup = _bloodGroup;
@@ -100,6 +109,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     String openToPolygamy = _openToPolygamy;
     String willingToRelocate = _willingToRelocate;
     String marriageTimeline = _marriageTimeline;
+    String spouseMaritalStatus = _spouseMaritalStatus;
+    String spouseChildrenPref = _spouseChildrenPref;
 
     showModalBottomSheet(
       context: context,
@@ -233,6 +244,38 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _buildModalDropdown('Marriage Timeline', marriageTimeline,
                       ['As soon as possible', 'Within 6 months', 'Within 1 year', '1–2 years', 'Not sure yet'],
                       (val) { if (val != null) setModalState(() => marriageTimeline = val); }),
+
+                  // ===== SPOUSE PREFERENCES SUBSECTION =====
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      const Icon(Icons.favorite_border_outlined, color: AppTheme.primaryGreen, size: 16),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Spouse Preferences',
+                        style: GoogleFonts.outfit(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.primaryGreen,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  _buildModalDropdown('Spouse Marital Status', spouseMaritalStatus,
+                      ['Any', 'Single', 'Divorced', 'Widowed'],
+                      (val) { if (val != null) setModalState(() => spouseMaritalStatus = val); }),
+                  const SizedBox(height: 12),
+                  _buildModalDropdown('Children Preference', spouseChildrenPref,
+                      ['No preference', 'OK with children', 'Prefer no children'],
+                      (val) { if (val != null) setModalState(() => spouseChildrenPref = val); }),
+                  const SizedBox(height: 12),
+                  Text('Location Preference', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: spouseLocationController,
+                    decoration: const InputDecoration(hintText: 'e.g. Niger, FCT, Kwara or Any'),
+                  ),
                 ],
 
                 const SizedBox(height: 24),
@@ -274,6 +317,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         openToPolygamy: isPremium ? openToPolygamy : null,
                         willingToRelocate: isPremium ? willingToRelocate : null,
                         marriageTimeline: isPremium ? marriageTimeline : null,
+                        spouseMaritalStatus: isPremium ? spouseMaritalStatus : null,
+                        spouseChildrenPref: isPremium ? spouseChildrenPref : null,
+                        spouseLocation: isPremium ? spouseLocationController.text.trim() : null,
                       );
 
                       if (context.mounted) Navigator.pop(context); // Dismiss loading
@@ -294,6 +340,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             _openToPolygamy = openToPolygamy;
                             _willingToRelocate = willingToRelocate;
                             _marriageTimeline = marriageTimeline;
+                            _spouseMaritalStatus = spouseMaritalStatus;
+                            _spouseChildrenPref = spouseChildrenPref;
+                            _spouseLocation = spouseLocationController.text.trim();
                           }
                         });
                         if (context.mounted) {

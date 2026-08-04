@@ -48,6 +48,9 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
   final _aboutMeController = TextEditingController();
   final _spouseAgeRangeController = TextEditingController();
   final _spouseDesiredQualitiesController = TextEditingController();
+  String _spouseMaritalStatus = 'Any';
+  String _spouseChildrenPref = 'No preference';
+  final _spouseLocationController = TextEditingController();
 
   // STEP 2: HEALTH & LIFESTYLE DETAILS
   String _bloodGroup = 'A+';
@@ -111,6 +114,15 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
           if (user.spouseDesiredQualities != null) {
             _spouseDesiredQualitiesController.text = user.spouseDesiredQualities!;
           }
+          if (user.spouseMaritalStatus != null && user.spouseMaritalStatus!.isNotEmpty) {
+            _spouseMaritalStatus = user.spouseMaritalStatus!;
+          }
+          if (user.spouseChildrenPref != null && user.spouseChildrenPref!.isNotEmpty) {
+            _spouseChildrenPref = user.spouseChildrenPref!;
+          }
+          if (user.spouseLocation != null) {
+            _spouseLocationController.text = user.spouseLocation!;
+          }
           // Pre-fill Health & Lifestyle fields
           if (user.bloodGroup != null && user.bloodGroup!.isNotEmpty) {
             _bloodGroup = user.bloodGroup!;
@@ -161,6 +173,7 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
     _aboutMeController.dispose();
     _spouseAgeRangeController.dispose();
     _spouseDesiredQualitiesController.dispose();
+    _spouseLocationController.dispose();
     _healthStatusController.dispose();
     _appearanceController.dispose();
     super.dispose();
@@ -262,6 +275,9 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
         aboutMe: _aboutMeController.text.trim(),
         spouseAgeRange: _spouseAgeRangeController.text.trim(),
         spouseDesiredQualities: _spouseDesiredQualitiesController.text.trim(),
+        spouseMaritalStatus: _spouseMaritalStatus,
+        spouseChildrenPref: _spouseChildrenPref,
+        spouseLocation: _spouseLocationController.text.trim(),
         bloodGroup: _bloodGroup,
         genotype: _genotype,
         healthStatus: _healthStatusController.text.trim(),
@@ -954,11 +970,38 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
         _buildDropdown('Marital Status', _maritalStatus, ['Single', 'Divorced', 'Widow', 'Widower'], (val) {
           if (val != null) setState(() => _maritalStatus = val);
         }),
-        _buildTextField(_childrenController, 'Children', 'e.g. None', TextInputType.text),
+        _buildTextField(_childrenController, 'Do You Have Children?', 'e.g. None, 1 child, 2 children', TextInputType.text),
         _buildDropdown('Education', _education, ['B.Sc.', 'M.Sc.', 'Ph.D.', 'HND', 'OND', 'High School', 'Other'], (val) {
           if (val != null) setState(() => _education = val);
         }),
         _buildTextField(_occupationController, 'Occupation', 'e.g. Teacher', TextInputType.text),
+        _buildTextField(_aboutMeController, 'About Me', 'Write a short description about yourself...', TextInputType.multiline),
+        const SizedBox(height: 8),
+        // ===== SPOUSE PREFERENCES SECTION =====
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Row(
+            children: [
+              const Icon(Icons.favorite_border_outlined, color: AppTheme.primaryGreen, size: 18),
+              const SizedBox(width: 8),
+              Text(
+                'Spouse Preferences',
+                style: GoogleFonts.outfit(fontSize: 17, fontWeight: FontWeight.bold, color: AppTheme.primaryGreen),
+              ),
+            ],
+          ),
+        ),
+        _buildTextField(_spouseAgeRangeController, 'Preferred Age Range', 'e.g. 25–35', TextInputType.text),
+        _buildDropdown('Spouse Marital Status', _spouseMaritalStatus,
+            ['Any', 'Single', 'Divorced', 'Widowed'], (val) {
+          if (val != null) setState(() => _spouseMaritalStatus = val);
+        }),
+        _buildDropdown('Children Preference', _spouseChildrenPref,
+            ['No preference', 'OK with children', 'Prefer no children'], (val) {
+          if (val != null) setState(() => _spouseChildrenPref = val);
+        }),
+        _buildTextField(_spouseLocationController, 'Location Preference', 'e.g. Niger, FCT, Kwara or Any', TextInputType.text),
+        _buildTextField(_spouseDesiredQualitiesController, 'Desired Qualities', 'e.g. Pious, patient, educated, kind...', TextInputType.multiline),
       ],
     );
   }
