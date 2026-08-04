@@ -342,31 +342,31 @@ class AuthNotifier extends Notifier<AuthState> {
     if (currentUser == null) return false;
 
     state = state.copyWith(isLoading: true, errorMessage: null);
-
     try {
       final response = await _apiClient.post('/user/delete/', {
         'seeker_id': currentUser.id,
       });
 
       if (response['status'] == 'success') {
-        await _clearUserFromPrefs();
-        state = AuthState();
+        await logout();
         return true;
       } else {
         state = state.copyWith(
           isLoading: false,
-          errorMessage: response['message'] ?? 'Failed to delete account.',
+          errorMessage: response['message'] ?? 'Failed to delete account',
         );
         return false;
       }
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Connection error while deleting account: $e',
+        errorMessage: e.toString().replaceAll('Exception: ', ''),
       );
       return false;
     }
   }
+
+
 
   void setTemporaryUser({
     required String fullName,
