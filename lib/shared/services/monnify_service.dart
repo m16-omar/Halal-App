@@ -3,8 +3,8 @@ import 'package:monnify_payment_sdk/src/models/transaction_response.dart';
 
 class MonnifyConfig {
   // Replace these with your live/test Monnify credentials from https://app.monnify.com
-  static const String apiKey = 'MK_TEST_SAF89234JJ'; // Sandbox test API Key
-  static const String contractCode = '8629471940'; // Sandbox test contract code
+  static const String apiKey = 'MK_TEST_JURYF099CC'; // Sandbox test API Key
+  static const String contractCode = '2192296681'; // Sandbox contract code / Wallet Account Number
   static const ApplicationMode mode = ApplicationMode.TEST;
 }
 
