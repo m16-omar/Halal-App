@@ -337,6 +337,37 @@ class AuthNotifier extends Notifier<AuthState> {
     state = AuthState();
   }
 
+  Future<bool> deleteAccount() async {
+    final currentUser = state.user;
+    if (currentUser == null) return false;
+
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      final response = await _apiClient.post('/user/delete/', {
+        'seeker_id': currentUser.id,
+      });
+
+      if (response['status'] == 'success') {
+        await _clearUserFromPrefs();
+        state = AuthState();
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: response['message'] ?? 'Failed to delete account.',
+        );
+        return false;
+      }
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Connection error while deleting account: $e',
+      );
+      return false;
+    }
+  }
+
   void setTemporaryUser({
     required String fullName,
     String status = 'Unverified',

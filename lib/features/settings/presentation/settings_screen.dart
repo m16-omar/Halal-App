@@ -1482,9 +1482,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 child: Text('Cancel', style: TextStyle(color: Colors.grey[600], fontSize: 14)),
                               ),
                               ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  context.go('/login');
+                                onPressed: () async {
+                                  Navigator.pop(context); // Close dialog
+                                  final success = await ref.read(authProvider.notifier).deleteAccount();
+                                  if (context.mounted) {
+                                    if (success) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Account permanently deleted.'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                      context.go('/login');
+                                    } else {
+                                      final errorMsg = ref.read(authProvider).errorMessage ?? 'Failed to delete account.';
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(errorMsg),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  }
                                 },
                                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                                 child: Text('Delete', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white)),
