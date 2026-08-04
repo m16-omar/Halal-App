@@ -522,15 +522,94 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
+  void _showActivitySummaryModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        final List<Map<String, dynamic>> allActivities = [
+          {'count': '24', 'label': 'Interest Received', 'desc': '24 candidates expressed interest in your profile', 'icon': Icons.favorite, 'color': Colors.red, 'route': '/interest-requests'},
+          {'count': '18', 'label': 'Interest Sent', 'desc': 'You sent interest to 18 potential candidates', 'icon': Icons.send_outlined, 'color': Colors.teal, 'route': '/interest-requests'},
+          {'count': '5', 'label': 'Conversations', 'desc': '5 active supervised chats with candidates', 'icon': Icons.people_outline, 'color': Colors.blue, 'route': '/messages'},
+          {'count': '2', 'label': 'Meetings Proposed', 'desc': '2 wali-guided meeting proposals in progress', 'icon': Icons.calendar_today_outlined, 'color': Colors.green, 'route': '/propose-meeting'},
+          {'count': '36', 'label': 'Profile Views', 'desc': '36 seekers viewed your profile in the past 7 days', 'icon': Icons.visibility_outlined, 'color': Colors.orange, 'route': '/matches'},
+          {'count': '7', 'label': 'Saved Profiles', 'desc': '7 profiles saved to your favorites list', 'icon': Icons.bookmark_border_outlined, 'color': Colors.purple, 'route': '/matches'},
+        ];
+
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Activity Overview',
+                    style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 20),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ...allActivities.map((act) {
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF9FAF6),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey[200]!),
+                  ),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                    leading: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: (act['color'] as Color).withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(act['icon'], color: act['color'], size: 20),
+                    ),
+                    title: Text(
+                      '${act['label']} (${act['count']})',
+                      style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+                    ),
+                    subtitle: Text(
+                      act['desc'],
+                      style: GoogleFonts.inter(fontSize: 10, color: AppTheme.secondaryGrey),
+                    ),
+                    trailing: const Icon(Icons.chevron_right, size: 18, color: AppTheme.secondaryGrey),
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.push(act['route']);
+                    },
+                  ),
+                );
+              }).toList(),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   // --- YOUR ACTIVITY SECTION ---
   Widget _buildYourActivitySection() {
     final List<Map<String, dynamic>> activities = [
-      {'count': '24', 'label': 'Interest Received', 'icon': Icons.favorite, 'color': Colors.red},
-      {'count': '18', 'label': 'Interest Sent', 'icon': Icons.send_outlined, 'color': Colors.teal},
-      {'count': '5', 'label': 'Conversations', 'icon': Icons.people_outline, 'color': Colors.blue},
-      {'count': '2', 'label': 'Meetings Proposed', 'icon': Icons.calendar_today_outlined, 'color': Colors.green},
-      {'count': '36', 'label': 'Profile Views', 'icon': Icons.visibility_outlined, 'color': Colors.orange},
-      {'count': '7', 'label': 'Saved Profiles', 'icon': Icons.bookmark_border_outlined, 'color': Colors.purple},
+      {'count': '24', 'label': 'Interest Received', 'icon': Icons.favorite, 'color': Colors.red, 'route': '/interest-requests'},
+      {'count': '18', 'label': 'Interest Sent', 'icon': Icons.send_outlined, 'color': Colors.teal, 'route': '/interest-requests'},
+      {'count': '5', 'label': 'Conversations', 'icon': Icons.people_outline, 'color': Colors.blue, 'route': '/messages'},
+      {'count': '2', 'label': 'Meetings Proposed', 'icon': Icons.calendar_today_outlined, 'color': Colors.green, 'route': '/propose-meeting'},
+      {'count': '36', 'label': 'Profile Views', 'icon': Icons.visibility_outlined, 'color': Colors.orange, 'route': '/matches'},
+      {'count': '7', 'label': 'Saved Profiles', 'icon': Icons.bookmark_border_outlined, 'color': Colors.purple, 'route': '/matches'},
     ];
 
     return Column(
@@ -546,7 +625,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: () => _showActivitySummaryModal(),
                 child: Text(
                   'View all',
                   style: GoogleFonts.inter(fontSize: 12, color: AppTheme.primaryGreen, fontWeight: FontWeight.w600),
@@ -563,32 +642,41 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             itemCount: activities.length,
             itemBuilder: (context, index) {
               final act = activities[index];
-              return Container(
-                width: 95,
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.black.withOpacity(0.03)),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(act['icon'], color: act['color'], size: 18),
-                    const SizedBox(height: 4),
-                    Text(
-                      act['count'],
-                      style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      act['label'],
-                      style: GoogleFonts.inter(fontSize: 8, color: AppTheme.secondaryGrey),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                    ),
-                  ],
+              return GestureDetector(
+                onTap: () {
+                  if (act['route'] != null) {
+                    context.push(act['route']);
+                  } else {
+                    _showActivitySummaryModal();
+                  }
+                },
+                child: Container(
+                  width: 95,
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.black.withOpacity(0.03)),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(act['icon'], color: act['color'], size: 18),
+                      const SizedBox(height: 4),
+                      Text(
+                        act['count'],
+                        style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        act['label'],
+                        style: GoogleFonts.inter(fontSize: 8, color: AppTheme.secondaryGrey),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
