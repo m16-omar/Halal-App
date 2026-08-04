@@ -379,6 +379,7 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
             onPressed: _prevStep,
           ),
         title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               'Premium Upgrade',
@@ -389,19 +390,23 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
           ],
         ),
         actions: [
-          Container(
-            margin: const EdgeInsets.only(right: 16, top: 10, bottom: 10),
-            child: OutlinedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.headset_mic_outlined, size: 14, color: AppTheme.primaryGreen),
-              label: Text(
-                'Help',
-                style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.primaryGreen),
-              ),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AppTheme.primaryGreen),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Center(
+              child: OutlinedButton.icon(
+                onPressed: () {},
+                icon: const Icon(Icons.headset_mic_outlined, size: 14, color: AppTheme.primaryGreen),
+                label: Text(
+                  'Help',
+                  style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: AppTheme.primaryGreen),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: AppTheme.primaryGreen),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
               ),
             ),
           ),
