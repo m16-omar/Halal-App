@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../app/theme/app_theme.dart';
+import '../../../shared/services/monnify_service.dart';
 import '../../authentication/presentation/auth_provider.dart';
 
 class PremiumUpgradeScreen extends ConsumerStatefulWidget {
@@ -246,6 +247,35 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
   }
 
   Future<void> _processUpgrade() async {
+    final currentUser = ref.read(authProvider).user;
+    if (currentUser == null) {
+      _showErrorSnackBar('User session not found. Please log in again.');
+      return;
+    }
+
+    final planAmount = _selectedPlan == 0 ? 5000.0 : (_selectedPlan == 1 ? 12000.0 : 20000.0);
+    final planTitle = _selectedPlan == 0 ? 'Basic Plan' : (_selectedPlan == 1 ? 'Premium Plan' : 'Platinum Plan');
+
+    // 1. Launch Monnify Payment SDK Checkout
+    final monnifyService = MonnifyService();
+    final paymentResponse = await monnifyService.startPayment(
+      amount: planAmount,
+      customerName: currentUser.fullName,
+      customerEmail: currentUser.email != null && currentUser.email!.isNotEmpty
+          ? currentUser.email!
+          : 'seeker_${currentUser.id}@halalconnect.com',
+      paymentDescription: 'Nupe Halal Connect $planTitle Subscription',
+      paymentReference: 'NHC_SUB_${currentUser.id}_${DateTime.now().millisecondsSinceEpoch}',
+    );
+
+    // If payment was cancelled or not paid, return with notification
+    if (paymentResponse == null || paymentResponse.transactionStatus != 'PAID') {
+      final status = paymentResponse?.transactionStatus ?? 'CANCELLED';
+      _showErrorSnackBar('Monnify payment was not completed (Status: $status).');
+      return;
+    }
+
+    // 2. Payment Verified Paid! Save profile & upgrade status in Backend
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -255,11 +285,6 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
     );
 
     try {
-      final currentUser = ref.read(authProvider).user;
-      if (currentUser == null) {
-        throw Exception('User session not found. Please log in again.');
-      }
-
       final ageVal = int.tryParse(_ageController.text.trim()) ?? 0;
 
       final success = await ref.read(authProvider.notifier).premiumUpgrade(
@@ -1119,10 +1144,13 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
 
   // ================= STEP 4: PAYMENT GATEWAY (Payment) =================
   Widget _buildStep4PaymentGateway() {
+    final planTitle = _selectedPlan == 0 ? 'Basic Plan' : (_selectedPlan == 1 ? 'Premium Plan' : 'Platinum Plan');
+    final planPrice = _selectedPlan == 0 ? '₦5,000' : (_selectedPlan == 1 ? '₦12,000' : '₦20,000');
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildStepTitle('Premium Payment Gateway', 'Securely upgrade to Premium tier using Paystack gateway.'),
+        _buildStepTitle('Monnify Payment Gateway', 'Securely complete your subscription via Monnify SDK.'),
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -1136,37 +1164,77 @@ class _PremiumUpgradeScreenState extends ConsumerState<PremiumUpgradeScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Premium Tier Activation', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.primaryGreen)),
+                  Text('$planTitle Activation', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.bold, color: AppTheme.primaryGreen)),
                   const SizedBox(height: 2),
-                  Text('Includes advanced profile and verification', style: GoogleFonts.inter(fontSize: 9, color: Colors.grey[600])),
+                  Text('Includes advanced matchmaking & verification badge', style: GoogleFonts.inter(fontSize: 9, color: Colors.grey[600])),
                 ],
               ),
               Text(
-                _selectedPlan == 0 ? '₦5,000' : (_selectedPlan == 1 ? '₦12,000' : '₦20,000'),
+                planPrice,
                 style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryGreen),
               ),
             ],
           ),
         ),
         const SizedBox(height: 20),
-        _buildTextField(_cardNameController, 'Cardholder Name', 'e.g. Amina Agaie', TextInputType.text),
-        _buildTextField(_cardNumberController, 'Credit Card Number', '1234 5678 1234 5678', TextInputType.number),
-        Row(
-          children: [
-            Expanded(child: _buildTextField(_cardExpiryController, 'Expiry Date', 'MM/YY', TextInputType.number)),
-            const SizedBox(width: 16),
-            Expanded(child: _buildTextField(_cardCvvController, 'CVV', '123', TextInputType.number)),
-          ],
+        Text('Supported Payment Methods', style: GoogleFonts.outfit(fontSize: 14, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal)),
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF9FAF6),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.grey[200]!),
+          ),
+          child: Column(
+            children: [
+              _buildPaymentChannelRow(Icons.credit_card, 'Debit / Credit Card', 'Mastercard, Visa, Verve'),
+              const Divider(height: 20, color: Color(0xFFEEEEEE)),
+              _buildPaymentChannelRow(Icons.account_balance, 'Instant Bank Transfer', 'Direct Monnify Virtual Account'),
+              const Divider(height: 20, color: Color(0xFFEEEEEE)),
+              _buildPaymentChannelRow(Icons.phone_android, 'USSD Payment', 'GTBank, Zenith, Access, First Bank & more'),
+            ],
+          ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.lock_outline, color: Colors.grey, size: 14),
-            const SizedBox(width: 4),
-            Text('Secured by Paystack. Your transaction is encrypted.', style: GoogleFonts.inter(fontSize: 8, color: Colors.grey)),
+            const Icon(Icons.shield_outlined, color: AppTheme.primaryGreen, size: 16),
+            const SizedBox(width: 6),
+            Text(
+              'Secured by Monnify Payment SDK (CBN Licensed)',
+              style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w600, color: AppTheme.darkCharcoal),
+            ),
           ],
         ),
+      ],
+    );
+  }
+
+  Widget _buildPaymentChannelRow(IconData icon, String title, String subtitle) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: const BoxDecoration(
+            color: Color(0xFFE8F5E9),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: AppTheme.primaryGreen, size: 18),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.darkCharcoal)),
+              const SizedBox(height: 2),
+              Text(subtitle, style: GoogleFonts.inter(fontSize: 9, color: Colors.grey[600])),
+            ],
+          ),
+        ),
+        const Icon(Icons.check_circle, color: AppTheme.primaryGreen, size: 16),
       ],
     );
   }
